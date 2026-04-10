@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0F051B;
+  --foreground: #EFE6FA;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-text: rgb(239 230 250);
+  --color-background: rgb(15 5 27);
+  --color-mantis-50: rgb(242 249 236);
+  --color-mantis-100: rgb(226 242 213);
+  --color-mantis-200: rgb(199 231 175);
+  --color-mantis-300: rgb(163 214 128);
+  --color-mantis-400: rgb(125 192 81);
+  --color-mantis-500: rgb(100 168 58);
+  --color-mantis-600: rgb(76 133 43);
+  --color-mantis-700: rgb(59 102 37);
+  --color-mantis-800: rgb(50 82 34);
+  --color-mantis-900: rgb(45 70 33);
+  --color-mantis-950: rgb(20 38 13);
+  --color-violet-eggplant-50: rgb(254 242 255);
+  --color-violet-eggplant-100: rgb(252 227 255);
+  --color-violet-eggplant-200: rgb(251 199 255);
+  --color-violet-eggplant-300: rgb(253 154 255);
+  --color-violet-eggplant-400: rgb(254 95 255);
+  --color-violet-eggplant-500: rgb(254 35 255);
+  --color-violet-eggplant-600: rgb(246 3 242);
+  --color-violet-eggplant-700: rgb(205 0 197);
+  --color-violet-eggplant-800: rgb(167 1 159);
+  --color-violet-eggplant-900: rgb(147 8 137);
+  --color-violet-eggplant-950: rgb(56 1 52);
+  --color-lavender-50: rgb(250 245 255);
+  --color-lavender-100: rgb(243 233 254);
+  --color-lavender-200: rgb(233 214 254);
+  --color-lavender-300: rgb(216 182 252);
+  --color-lavender-400: rgb(183 119 248);
+  --color-lavender-500: rgb(167 89 243);
+  --color-lavender-600: rgb(146 56 229);
+  --color-lavender-700: rgb(125 39 201);
+  --color-lavender-800: rgb(106 37 164);
+  --color-lavender-900: rgb(87 31 132);
+  --color-lavender-950: rgb(37 7 63);
+  --font-mono: var(--font-jb-mono);
+  --font-display: var(--font-major-mono-display);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-mono);
 }

@@ -1,65 +1,65 @@
-import Image from "next/image";
+import { Separator, Heading, Text, Button } from "@chakra-ui/react";
+import { majorMonoDisplay } from "./fonts";
+import { LuChevronRight } from "react-icons/lu";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="flex flex-1 flex-col items-center justify-center">
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-35"
+        preserveAspectRatio="xMidYMid slice"
+        viewBox="0 0 1000 500"
+      >
+        <defs>
+          <filter id="blob-blur" filterUnits="userSpaceOnUse" x="0" y="0" width="1000" height="500">
+            <feGaussianBlur stdDeviation="100" />
+          </filter>
+          <filter id="grain" x="0" y="0" width="100%" height="100%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="1"
+              numOctaves="3"
+              result="turbulence"
+              stitchTiles="stitch"
             />
-            Deploy Now
+            <feBlend in="SourceGraphic" in2="turbulence" mode="overlay" />
+          </filter>
+        </defs>
+        <g filter="url(#blob-blur)">
+          <rect x="723.24" y="28.60" width="349.13" height="361.59" fill="#B777F8" />
+          <rect x="428.50" y="-1.21" width="409.45" height="506.63" fill="#930889" />
+          <rect x="173.70" y="288.68" width="507.64" height="406.04" fill="#7DC051" />
+        </g>
+        <rect
+          x="0" y="0"
+          width="1000" height="500"
+          style={{ mixBlendMode: "luminosity", filter: "url(#grain)", opacity: 0.2 }}
+        />
+      </svg>
+      <div className="w-full h-full flex flex-col gap-6 items-center z-1">
+        <Heading as="h1" size="6xl" className={`${majorMonoDisplay.className} text-center`}>
+          Access<span className="text-lavender-400">DEV</span>
+        </Heading>
+        <Separator size="lg" />
+        <Text width={500} className="text-center">
+          Beauty is in the eye of the beholder. Usability is in the experience of the user. Time to swap seats and learn how to build for everyone.
+        </Text>
+        <Button
+          asChild
+          gap="2"
+          size="lg"
+          bg="var(--color-lavender-400)"
+          color="var(--color-lavender-950)"
+          _hover={{ bg: "var(--color-lavender-500)" }}
+          _active={{ bg: "var(--color-lavender-600)" }}
+        >
+          <a href="/app">
+            Start Now
+            <LuChevronRight aria-hidden="true" />
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        </Button>
+      </div>
+
     </div>
   );
 }
