@@ -21,7 +21,7 @@ export const course: Course = {
                     link: ["https://www.w3.org/WAI/tutorials/images/decision-tree/"]
                 },
             ],
-            link: ["/quizzes/1"]
+            link: ["app/quiz/1"]
         },
         {
             id: "challenge-1",
@@ -30,12 +30,12 @@ export const course: Course = {
             description: "Create a webpage with a header, a main content area, and a footer. Ensure that all interactive elements can be accessed and used with keyboard navigation.",
             starterCode: "",
             solutionCode: "",
-            link: ["/challenges/1"]
+            link: ["/app/challenges/keyboard-navigation"]
         },
         {
             id: "quiz-2",
-            title: "Introductory Quiz",
-            subtitle: "Test your knowledge on accessibility basics",
+            title: "Quiz 2",
+            subtitle: "Reflect on keyboard navigation and screen reader basics",
             questions: [
                 {
                     id: "q1",
@@ -51,21 +51,21 @@ export const course: Course = {
                     link: ["https://www.w3.org/WAI/tutorials/images/decision-tree/"]
                 },
             ],
-            link: ["/quizzes/1"]
+            link: ["app/quiz/2"]
         },
         {
             id: "challenge-2",
-            title: "Keyboard Navigation Challenge",
-            subtitle: "Make a simple webpage navigable using only the keyboard",
+            title: "Screen Reader Challenge",
+            subtitle: "Make sure your website gives usable screen reader output",
             description: "Create a webpage with a header, a main content area, and a footer. Ensure that all interactive elements can be accessed and used with keyboard navigation.",
             starterCode: "",
             solutionCode: "",
-            link: ["/challenges/1"]
+            link: ["/app/challenges/screen-reader"]
         },
         {
             id: "quiz-3",
-            title: "Introductory Quiz",
-            subtitle: "Test your knowledge on accessibility basics",
+            title: "Quiz 3",
+            subtitle: "Reflect on screen reader accessibility and contrast basics",
             questions: [
                 {
                     id: "q1",
@@ -81,16 +81,16 @@ export const course: Course = {
                     link: ["https://www.w3.org/WAI/tutorials/images/decision-tree/"]
                 },
             ],
-            link: ["/quizzes/1"]
+            link: ["app/quiz/3"]
         },
         {
             id: "challenge-3",
-            title: "Keyboard Navigation Challenge",
-            subtitle: "Make a simple webpage navigable using only the keyboard",
-            description: "Create a webpage with a header, a main content area, and a footer. Ensure that all interactive elements can be accessed and used with keyboard navigation.",
+            title: "Contrast Challenge",
+            subtitle: "Ensure your webpage has sufficient color contrast",
+            description: "Create a webpage with a header, a main content area, and a footer. Ensure that all text has sufficient contrast against its background.",
             starterCode: "",
             solutionCode: "",
-            link: ["/challenges/1"]
+            link: ["/app/challenges/contrast"]
         }
     ]
 }

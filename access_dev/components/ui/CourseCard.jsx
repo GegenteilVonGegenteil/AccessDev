@@ -9,7 +9,7 @@ export default function CourseCard({ title, description, link, isLocked = false,
     const iconColor = isLocked ? "var(--color-lavender-300)" : isCompleted ? "var(--color-text)" : "var(--color-text)";
     const iconBgColor = isLocked ? "var(--color-lavender-900)" : isCompleted ? "var(--color-lavender-900)" : "var(--color-violet-eggplant-800)";
     const textColor = isLocked ? "var(--color-lavender-600)" : isCompleted ? "var(--color-text)" : "var(--color-text)";
-    const descriptionColor = isLocked ? "var(--color-lavender-700)" : isCompleted ? "var(--color-lavender-300)" : "var(--color-violet-eggplant-300)";
+    const descriptionColor = isLocked ? "var(--color-lavender-500)" : isCompleted ? "var(--color-lavender-300)" : "var(--color-violet-eggplant-300)";
 
     return (
         <Box display="flex" bg={backgoundColor} p={4} borderRadius="md" alignItems="center" gap={8} w="full">
@@ -19,11 +19,11 @@ export default function CourseCard({ title, description, link, isLocked = false,
                             </Icon>
                         </Box>
                         <div className="flex flex-col w-full gap-2 items-start justify-center">
-                            <Text fontSize="2xl" fontWeight="bold" color={textColor} textAlign="center">
+                            <Text as="h2" fontSize="2xl" fontWeight="bold" color={textColor} textAlign="center">
                                 {title}
                             </Text>
                             <Text fontSize="md" color={descriptionColor} textAlign="center">
-                                {description}
+                                {isLocked ? "Complete previous challenges" : description}
                             </Text>
                         </div>
                         {isLocked ? (

@@ -42,6 +42,7 @@ export default function Home() {
                 </VStack>
             </div>
             <div className="flex flex-col items-center justify-start">
+                <Text as="h1" fontSize="3xl" fontWeight="bold" mb={8} w="3/4"> Course Plan </Text>
                 <div className="flex gap-6 flex-col items-center justify-center w-3/4">
                     {coursePlan.steps.map((step, index) => {
                         const isCompleted = completedSet.has(step.id);
