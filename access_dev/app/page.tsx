@@ -1,4 +1,4 @@
-import { Separator, Heading, Text, Button } from "@chakra-ui/react";
+import { Heading, Text, Button, Box } from "@chakra-ui/react";
 import { majorMonoDisplay } from "./fonts";
 import { LuChevronRight } from "react-icons/lu";
 
@@ -40,19 +40,11 @@ export default function Home() {
         <Heading as="h1" size="6xl" className={`${majorMonoDisplay.className} text-center`}>
           Access<span className="text-lavender-400">DEV</span>
         </Heading>
-        <Separator size="lg" />
-        <Text width={500} className="text-center">
+        <Box w="full" maxW="200px" h="8px" bg="var(--color-text)" borderRadius="full" />
+        <Text className="text-center w-1/2" fontSize="2xl">
           Beauty is in the eye of the beholder. Usability is in the experience of the user. Time to swap seats and learn how to build for everyone.
         </Text>
-        <Button
-          asChild
-          gap="2"
-          size="lg"
-          bg="var(--color-lavender-400)"
-          color="var(--color-lavender-950)"
-          _hover={{ bg: "var(--color-lavender-500)" }}
-          _active={{ bg: "var(--color-lavender-600)" }}
-        >
+        <Button asChild gap="2" size="lg" bg="var(--color-lavender-400)" color="var(--color-lavender-950)" _hover={{ bg: "var(--color-lavender-500)" }}  _active={{ bg: "var(--color-lavender-600)" }}>
           <a href="/app">
             Start Now
             <LuChevronRight aria-hidden="true" />

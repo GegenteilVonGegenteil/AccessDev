@@ -18,7 +18,7 @@ const customConfig = defineConfig({
           950: { value: "rgb(37 7 63)" },
         },
         secondary: {
-            50: { value: "rgb(254 242 255)" },
+          50: { value: "rgb(254 242 255)" },
           100: { value: "rgb(252 227 255)" },
           200: { value: "rgb(251 199 255)" },
           300: { value: "rgb(253 154 255)" },
@@ -49,8 +49,9 @@ const customConfig = defineConfig({
           disabled: { value: "#a195ae" },
         },
         background: { value: "#0F051B" }
+      },
     },
-  },
+  }
 })
 
 export const system = createSystem(defaultConfig, customConfig)
