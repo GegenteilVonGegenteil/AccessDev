@@ -82,118 +82,9 @@ function getPreviewDoc(challenge: ChallengeDefinition, code: string) {
                 );
     }
 
-    if (challenge.type === "screen-reader") {
-        return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Screen Reader Output</title>
-    <style>
-      :root {
-        color-scheme: light;
-        font-family: Inter, Arial, sans-serif;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        background: #faf5ff;
-        color: #1c1226;
-      }
-
-      .shell {
-        display: grid;
-        gap: 18px;
-        padding: 28px;
-      }
-
-      .panel {
-        border-radius: 18px;
-        border: 1px solid rgba(109, 43, 191, 0.2);
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 20px 40px rgba(77, 43, 122, 0.08);
-        overflow: hidden;
-      }
-
-      .panel-header {
-        padding: 14px 18px;
-        border-bottom: 1px solid rgba(109, 43, 191, 0.12);
-        font-size: 0.85rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #7c3aed;
-      }
-
-      .sr-output {
-        display: grid;
-        gap: 10px;
-        padding: 18px;
-        line-height: 1.6;
-      }
-
-      .sr-line {
-        display: grid;
-        gap: 4px;
-        padding: 10px 12px;
-        border-radius: 12px;
-        background: #f5efff;
-      }
-
-      .sr-line strong {
-        color: #4c1d95;
-      }
-
-      .sr-muted {
-        color: #6b5b7e;
-      }
-
-      .badge {
-        display: inline-flex;
-        width: fit-content;
-        align-items: center;
-        border-radius: 999px;
-        padding: 4px 10px;
-        background: #e9d5ff;
-        color: #6d28d9;
-        font-size: 0.78rem;
-        font-weight: 700;
-      }
-    </style>
-  </head>
-  <body>
-    <main class="shell">
-      <section class="panel" aria-label="Screen reader output">
-        <div class="panel-header">Screen Reader Output</div>
-        <div class="sr-output">
-          <div class="sr-line">
-            <strong>${challenge.previewTitle}</strong>
-            <span>${challenge.previewDescription}</span>
-          </div>
-          <div class="sr-line">
-            <span class="badge">Heading level 1</span>
-            <span>Welcome</span>
-          </div>
-          <div class="sr-line">
-            <span class="badge">Heading level 3</span>
-            <span>Announcement Demo</span>
-            <span class="sr-muted">This heading level skips structure and should be fixed.</span>
-          </div>
-          <div class="sr-line">
-            <strong>Button:</strong>
-            <span>Do Thing</span>
-          </div>
-          <div class="sr-line" aria-live="polite">
-            <strong>Status region:</strong>
-            <span>Waiting for action...</span>
-          </div>
-        </div>
-      </section>
-    </main>
-  </body>
-</html>`;
-    }
+        if (challenge.type === "screen-reader") {
+                return code;
+        }
 
     if (challenge.type === "contrast") {
         return code.replace(
@@ -230,6 +121,79 @@ function getPreviewDoc(challenge: ChallengeDefinition, code: string) {
     }
 
     return code;
+}
+
+function stripTags(value: string) {
+    return value
+        .replace(/<[^>]*>/g, " ")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&amp;/gi, "&")
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinition) {
+    const headingLines: string[] = [];
+    const buttonLines: string[] = [];
+    const warnings: string[] = [];
+
+    const headingRegex = /<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/gi;
+    let headingMatch = headingRegex.exec(code);
+    let previousLevel = 0;
+
+    while (headingMatch) {
+        const level = Number.parseInt(headingMatch[1], 10);
+        const text = stripTags(headingMatch[2]);
+
+        if (text.length > 0) {
+            headingLines.push(`Heading level ${level}: ${text}`);
+        }
+
+        if (previousLevel > 0 && level - previousLevel > 1) {
+            warnings.push(`Heading level jumps from ${previousLevel} to ${level}.`);
+        }
+
+        previousLevel = level;
+        headingMatch = headingRegex.exec(code);
+    }
+
+    const buttonRegex = /<button([^>]*)>([\s\S]*?)<\/button>/gi;
+    let buttonMatch = buttonRegex.exec(code);
+
+    while (buttonMatch) {
+        const attributes = buttonMatch[1] ?? "";
+        const content = buttonMatch[2] ?? "";
+        const ariaLabelMatch = /aria-label\s*=\s*(["'])(.*?)\1/i.exec(attributes);
+        const accessibleName = (ariaLabelMatch?.[2] ?? stripTags(content)).trim();
+
+        if (accessibleName.length > 0) {
+            buttonLines.push(`Button: ${accessibleName}`);
+        } else {
+            buttonLines.push("Button: unlabeled");
+            warnings.push("At least one button has no accessible name.");
+        }
+
+        buttonMatch = buttonRegex.exec(code);
+    }
+
+    const liveRegex = /<([a-z0-9-]+)([^>]*\saria-live\s*=\s*(["'])(.*?)\3[^>]*)>([\s\S]*?)<\/\1>/i;
+    const liveMatch = liveRegex.exec(code);
+    const liveText = liveMatch ? stripTags(liveMatch[5]) : "No live region found.";
+
+    if (!liveMatch) {
+        warnings.push("No aria-live region found for status updates.");
+    }
+
+    return {
+        headingLines,
+        buttonLines,
+        liveText,
+        warnings,
+        introTitle: challenge.previewTitle,
+        introDescription: challenge.previewDescription,
+    };
 }
 
 export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
@@ -292,6 +256,13 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
     }, [code]);
 
     const previewDoc = useMemo(() => getPreviewDoc(challenge, code), [challenge, code]);
+    const screenReaderSimulation = useMemo(() => {
+        if (challenge.type !== "screen-reader") {
+            return null;
+        }
+
+        return extractScreenReaderSimulation(code, challenge);
+    }, [challenge, code]);
 
     const handleReset = () => {
         setCode(challenge.starterCode);
@@ -358,14 +329,34 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                             <span>Preview</span>
                         </div>
                     </div>
-                    <div className="challenge-runner__preview-container">
-                        <iframe
-                            title={`${challenge.title} preview`}
-                            sandbox="allow-scripts allow-modals"
-                            className="challenge-runner__preview-iframe"
-                            srcDoc={previewDoc}
-                        />
-                    </div>
+                    {screenReaderSimulation ? (
+                        <div className="challenge-runner__preview-container">
+                            <div className="challenge-runner__simulated-output" aria-live="polite">
+                                <div className="challenge-runner__simulated-title">Simulated Screen Reader Output</div>
+                                {screenReaderSimulation.headingLines.map((line) => (
+                                    <div key={line} className="challenge-runner__simulated-line">{line}</div>
+                                ))}
+                                {screenReaderSimulation.buttonLines.map((line) => (
+                                    <div key={line} className="challenge-runner__simulated-line">{line}</div>
+                                ))}
+                                <div className="challenge-runner__simulated-line">
+                                    <strong>Status region:</strong> {screenReaderSimulation.liveText}
+                                </div>
+                                {screenReaderSimulation.warnings.map((warning) => (
+                                    <div key={warning} className="challenge-runner__simulated-warning">{warning}</div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="challenge-runner__preview-container">
+                            <iframe
+                                title={`${challenge.title} preview`}
+                                sandbox="allow-scripts allow-modals"
+                                className="challenge-runner__preview-iframe"
+                                srcDoc={previewDoc}
+                            />
+                        </div>
+                    )}
                 </section>
             </div>
 

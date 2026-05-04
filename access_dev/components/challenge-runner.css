@@ -72,6 +72,40 @@
   background-color: var(--color-lavender-50);
 }
 
+.challenge-runner__simulated-output {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  min-height: 100%;
+  max-height: 544px;
+  overflow: auto;
+}
+
+.challenge-runner__simulated-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-lavender-950);
+}
+
+.challenge-runner__simulated-line {
+  border-radius: 10px;
+  background-color: var(--color-lavender-950);
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.challenge-runner__simulated-warning {
+  border-radius: 10px;
+  border: 1px solid var(--color-violet-eggplant-400);
+  background: var(--color-violet-eggplant-950);
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
 .challenge-runner__content {
   display: grid;
   gap: 12px;
@@ -97,19 +131,19 @@
 .challenge-runner__reveal-btn {
   width: 100%;
   border-radius: 12px;
-  background-color: #6d2bbf;
+  background-color: var(--color-lavender-700);
   padding: 12px 16px;
   text-align: left;
   font-size: 14px;
   font-weight: 500;
-  color: white;
+  color: var(--color-text);
   border: none;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .challenge-runner__reveal-btn:hover {
-  background-color: #7d38d9;
+  background-color: var(--color-lavender-800);
 }
 
 .challenge-runner__icon {
