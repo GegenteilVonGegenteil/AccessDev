@@ -6,230 +6,415 @@ import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { FiAlertTriangle, FiEye, FiInfo } from "react-icons/fi";
 import type { ChallengeDefinition } from "@/consts/challenges";
+import { Button, Icon, IconButton, Text } from "@chakra-ui/react";
+import { LuCodeXml } from "react-icons/lu";
+import "./challenge-runner.css";
 
 type ChallengeRunnerProps = {
-  challenge: ChallengeDefinition;
+    challenge: ChallengeDefinition;
 };
 
 const editorTheme = EditorView.theme({
-  "&": {
-    height: "100%",
-    backgroundColor: "#13081f",
-    color: "#efe6fa",
-    borderRadius: "16px",
-    overflow: "hidden",
-  },
-  ".cm-scroller": {
-    fontFamily: "var(--font-mono)",
-    lineHeight: "1.7",
-  },
-  ".cm-content": {
-    caretColor: "#f5f3ff",
-    padding: "16px 0",
-  },
-  ".cm-gutters": {
-    backgroundColor: "#0f051b",
-    color: "#a78bfa",
-    border: "none",
-  },
-  ".cm-activeLine, .cm-activeLineGutter": {
-    backgroundColor: "rgba(167, 139, 250, 0.08)",
-  },
-  ".cm-cursor, .cm-dropCursor": {
-    borderLeftColor: "#f5f3ff",
-  },
-  ".cm-selectionBackground, .cm-content ::selection": {
-    backgroundColor: "rgba(167, 139, 250, 0.35) !important",
-  },
-  ".cm-placeholder": {
-    color: "rgba(239, 230, 250, 0.45)",
-  },
+    "&": {
+        height: "100%",
+        backgroundColor: "#13081f",
+        color: "#efe6fa",
+        borderRadius: "16px",
+        overflow: "hidden",
+    },
+    ".cm-scroller": {
+        fontFamily: "var(--font-mono)",
+        lineHeight: "1.7",
+    },
+    ".cm-content": {
+        caretColor: "#f5f3ff",
+        padding: "16px 0",
+    },
+    ".cm-gutters": {
+        backgroundColor: "#0f051b",
+        color: "#a78bfa",
+        border: "none",
+    },
+    ".cm-activeLine, .cm-activeLineGutter": {
+        backgroundColor: "rgba(167, 139, 250, 0.08)",
+    },
+    ".cm-cursor, .cm-dropCursor": {
+        borderLeftColor: "#f5f3ff",
+    },
+    ".cm-selectionBackground, .cm-content ::selection": {
+        backgroundColor: "rgba(167, 139, 250, 0.35) !important",
+    },
+    ".cm-placeholder": {
+        color: "rgba(239, 230, 250, 0.45)",
+    },
 });
 
 function getInitialHintCount(totalHints: number) {
-  return totalHints > 0 ? 1 : 0;
+    return totalHints > 0 ? 1 : 0;
+}
+
+function getPreviewDoc(challenge: ChallengeDefinition, code: string) {
+    if (challenge.type === "keyboard-navigation") {
+        return code.replace(
+                        "</head>",
+                        `<style>
+                body {
+                  pointer-events: none !important;
+                }
+
+                button,
+                a,
+                input,
+                select,
+                textarea,
+                [role="button"],
+                [tabindex]:not([tabindex="-1"]) {
+                    pointer-events: auto !important;
+                    cursor: pointer !important;
+                }
+
+                :focus-visible {
+                    outline: 3px solid #7c3aed;
+                    outline-offset: 4px;
+                }
+            </style>
+</head>`
+                );
+    }
+
+    if (challenge.type === "screen-reader") {
+        return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Screen Reader Output</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #faf5ff;
+        color: #1c1226;
+      }
+
+      .shell {
+        display: grid;
+        gap: 18px;
+        padding: 28px;
+      }
+
+      .panel {
+        border-radius: 18px;
+        border: 1px solid rgba(109, 43, 191, 0.2);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 20px 40px rgba(77, 43, 122, 0.08);
+        overflow: hidden;
+      }
+
+      .panel-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid rgba(109, 43, 191, 0.12);
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #7c3aed;
+      }
+
+      .sr-output {
+        display: grid;
+        gap: 10px;
+        padding: 18px;
+        line-height: 1.6;
+      }
+
+      .sr-line {
+        display: grid;
+        gap: 4px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #f5efff;
+      }
+
+      .sr-line strong {
+        color: #4c1d95;
+      }
+
+      .sr-muted {
+        color: #6b5b7e;
+      }
+
+      .badge {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: #e9d5ff;
+        color: #6d28d9;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel" aria-label="Screen reader output">
+        <div class="panel-header">Screen Reader Output</div>
+        <div class="sr-output">
+          <div class="sr-line">
+            <strong>${challenge.previewTitle}</strong>
+            <span>${challenge.previewDescription}</span>
+          </div>
+          <div class="sr-line">
+            <span class="badge">Heading level 1</span>
+            <span>Welcome</span>
+          </div>
+          <div class="sr-line">
+            <span class="badge">Heading level 3</span>
+            <span>Announcement Demo</span>
+            <span class="sr-muted">This heading level skips structure and should be fixed.</span>
+          </div>
+          <div class="sr-line">
+            <strong>Button:</strong>
+            <span>Do Thing</span>
+          </div>
+          <div class="sr-line" aria-live="polite">
+            <strong>Status region:</strong>
+            <span>Waiting for action...</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>`;
+    }
+
+    if (challenge.type === "contrast") {
+        return code.replace(
+            "</head>",
+            `<style>
+        html,
+        body,
+        body * {
+          filter: blur(2.8px) saturate(0.8) brightness(0.92);
+        }
+
+        body {
+          overflow: hidden;
+        }
+
+        body::after {
+          content: "Contrast barrier active";
+          position: fixed;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          padding: 12px 16px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.7);
+          color: #4c1d95;
+          font: 600 0.85rem/1.2 Inter, Arial, sans-serif;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          filter: none;
+        }
+      </style>
+</head>`
+        );
+    }
+
+    return code;
 }
 
 export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
-  const editorHostRef = useRef<HTMLDivElement | null>(null);
-  const editorViewRef = useRef<EditorView | null>(null);
-  const [code, setCode] = useState(challenge.starterCode);
-  const [revealedHintCount, setRevealedHintCount] = useState(getInitialHintCount(challenge.hints.length));
+    const editorHostRef = useRef<HTMLDivElement | null>(null);
+    const editorViewRef = useRef<EditorView | null>(null);
+    const [code, setCode] = useState(challenge.starterCode);
+    const [revealedHints, setRevealedHints] = useState<Set<number>>(new Set());
 
-  useEffect(() => {
-    const host = editorHostRef.current;
+    useEffect(() => {
+        const host = editorHostRef.current;
 
-    if (!host || editorViewRef.current) {
-      return undefined;
-    }
+        if (!host || editorViewRef.current) {
+            return undefined;
+        }
 
-    const state = EditorState.create({
-      doc: challenge.starterCode,
-      extensions: [
-        basicSetup,
-        editorTheme,
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            setCode(update.state.doc.toString());
-          }
-        }),
-      ],
-    });
+        const state = EditorState.create({
+            doc: challenge.starterCode,
+            extensions: [
+                basicSetup,
+                editorTheme,
+                EditorView.updateListener.of((update) => {
+                    if (update.docChanged) {
+                        setCode(update.state.doc.toString());
+                    }
+                }),
+            ],
+        });
 
-    editorViewRef.current = new EditorView({
-      state,
-      parent: host,
-    });
+        editorViewRef.current = new EditorView({
+            state,
+            parent: host,
+        });
 
-    return () => {
-      editorViewRef.current?.destroy();
-      editorViewRef.current = null;
+        return () => {
+            editorViewRef.current?.destroy();
+            editorViewRef.current = null;
+        };
+    }, [challenge.starterCode]);
+
+    useEffect(() => {
+        const view = editorViewRef.current;
+
+        if (!view) {
+            return;
+        }
+
+        const currentCode = view.state.doc.toString();
+
+        if (currentCode === code) {
+            return;
+        }
+
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: currentCode.length,
+                insert: code,
+            },
+        });
+    }, [code]);
+
+    const previewDoc = useMemo(() => getPreviewDoc(challenge, code), [challenge, code]);
+
+    const handleReset = () => {
+        setCode(challenge.starterCode);
+        setRevealedHints(new Set());
+
+        const view = editorViewRef.current;
+
+        if (!view) {
+            return;
+        }
+
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: view.state.doc.length,
+                insert: challenge.starterCode,
+            },
+        });
     };
-  }, [challenge.starterCode]);
 
-  useEffect(() => {
-    const view = editorViewRef.current;
+    const revealHint = (index: number) => {
+        const newRevealed = new Set(revealedHints);
+        newRevealed.add(index);
+        setRevealedHints(newRevealed);
+    };
 
-    if (!view) {
-      return;
-    }
-
-    const currentCode = view.state.doc.toString();
-
-    if (currentCode === code) {
-      return;
-    }
-
-    view.dispatch({
-      changes: {
-        from: 0,
-        to: currentCode.length,
-        insert: code,
-      },
-    });
-  }, [code]);
-
-  const previewDoc = useMemo(() => code, [code]);
-
-  const handleReset = () => {
-    setCode(challenge.starterCode);
-    setRevealedHintCount(getInitialHintCount(challenge.hints.length));
-
-    const view = editorViewRef.current;
-
-    if (!view) {
-      return;
-    }
-
-    view.dispatch({
-      changes: {
-        from: 0,
-        to: view.state.doc.length,
-        insert: challenge.starterCode,
-      },
-    });
-  };
-
-  const revealHint = () => {
-    setRevealedHintCount((current) => Math.min(current + 1, challenge.hints.length));
-  };
-
-  return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 text-[#efe6fa] lg:px-0">
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-3">
-          <p className="font-mono text-3xl tracking-wide text-[#efe6fa]">
-            Challenge {challenge.id}: {challenge.title}
-          </p>
-          <p className="max-w-3xl text-sm leading-6 text-[#cdbfe0]">
-            {challenge.objective}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          aria-label="Challenge information"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/90 text-[#1a1022] transition hover:bg-white"
-        >
-          <FiInfo className="h-5 w-5" />
-        </button>
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-2">
-        <section className="overflow-hidden rounded-2xl border border-violet-300/70 bg-[#13081f] shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-            <div className="flex items-center gap-3 text-[#d9c9ef]">
-              <span className="font-mono text-sm">&lt;/&gt;</span>
-              <span className="font-mono text-sm">index.html</span>
+    return (
+        <div className="challenge-runner">
+            <div className="challenge-runner__header">
+                <Text as="h1" fontSize="2xl">Challenge {challenge.id}: {challenge.title}</Text>
+                <IconButton aria-label="Challenge information" rounded="full" background="transparent">
+                    <FiInfo className="h-5 w-5" />
+                </IconButton>
             </div>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="rounded-full border border-white/10 px-3 py-1 text-xs text-[#d9c9ef] transition hover:border-white/25 hover:bg-white/5"
-            >
-              Reset
-            </button>
-          </div>
-          <div className="h-[34rem] min-h-[34rem] p-3">
-            <div ref={editorHostRef} className="h-full min-h-0 rounded-xl border border-white/5" />
-          </div>
-        </section>
 
-        <section className="overflow-hidden rounded-2xl border border-violet-300/70 bg-[#13081f] shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-          <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4 text-[#d9c9ef]">
-            <FiEye className="h-5 w-5" />
-            <span className="font-mono text-sm">Preview</span>
-          </div>
-          <div className="h-[34rem] min-h-[34rem] bg-[#ece5f8] p-0">
-            <iframe
-              title={`${challenge.title} preview`}
-              sandbox="allow-scripts allow-modals"
-              className="h-full w-full border-0 bg-white"
-              srcDoc={previewDoc}
-            />
-          </div>
-        </section>
-      </div>
+            <div className="challenge-runner__grid">
+                <section className="challenge-runner__section">
+                    <div className="challenge-runner__section-header">
+                        <div className="challenge-runner__section-title">
+                            <LuCodeXml />
+                            <span>index.html</span>
+                        </div>
+                        <Button
+                            type="button"
+                            onClick={handleReset}
+                            variant="outline"
+                            rounded="full"
+                            borderColor="var(--color-lavender-300)"
+                            color="var(--color-lavender-300)"
+                            _hover={{ bg: "var(--color-lavender-950)" }}
+                        >
+                            Reset
+                        </Button>
+                    </div>
+                    <div className="challenge-runner__editor-container">
+                        <div ref={editorHostRef} className="challenge-runner__editor-host" />
+                    </div>
+                </section>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <section className="overflow-hidden rounded-2xl border border-violet-300/70 bg-[#13081f]">
-          <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4 text-[#d9c9ef]">
-            <FiAlertTriangle className="h-5 w-5" />
-            <span className="font-mono text-sm">Errors</span>
-          </div>
-          <div className="space-y-3 p-5">
-            {challenge.errors.map((error) => (
-              <div key={error} className="rounded-xl border border-fuchsia-500/40 bg-fuchsia-950/50 px-4 py-3 text-sm text-fuchsia-100">
-                {error}
-              </div>
-            ))}
-          </div>
-        </section>
+                <section className="challenge-runner__section">
+                    <div className="challenge-runner__section-header challenge-runner__section-header--alt">
+                        <div className="challenge-runner__section-title">
+                            <FiEye className="challenge-runner__icon" />
+                            <span>Preview</span>
+                        </div>
+                    </div>
+                    <div className="challenge-runner__preview-container">
+                        <iframe
+                            title={`${challenge.title} preview`}
+                            sandbox="allow-scripts allow-modals"
+                            className="challenge-runner__preview-iframe"
+                            srcDoc={previewDoc}
+                        />
+                    </div>
+                </section>
+            </div>
 
-        <section className="overflow-hidden rounded-2xl border border-violet-300/70 bg-[#13081f]">
-          <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4 text-[#d9c9ef]">
-            <FiInfo className="h-5 w-5" />
-            <span className="font-mono text-sm">Hints</span>
-          </div>
-          <div className="space-y-3 p-5">
-            {challenge.hints.slice(0, revealedHintCount).map((hint) => (
-              <div key={hint} className="rounded-xl border border-violet-500/30 bg-violet-950/50 px-4 py-3 text-sm text-violet-100">
-                {hint}
-              </div>
-            ))}
+            <div className="challenge-runner__grid">
+                <section className="challenge-runner__section">
+                    <div className="challenge-runner__section-header challenge-runner__section-header--alt">
+                        <div className="challenge-runner__section-title">
+                            <FiAlertTriangle className="challenge-runner__icon" />
+                            <span>Errors</span>
+                        </div>
+                    </div>
+                    <div className="challenge-runner__content">
+                        {challenge.errors.map((error) => (
+                            <div key={error} className="challenge-runner__error-item">
+                                {error}
+                            </div>
+                        ))}
+                    </div>
+                </section>
 
-            {revealedHintCount < challenge.hints.length ? (
-              <button
-                type="button"
-                onClick={revealHint}
-                className="w-full rounded-xl bg-[#6d2bbf] px-4 py-3 text-left text-sm font-medium text-white transition hover:bg-[#7d38d9]"
-              >
-                Reveal Hint {revealedHintCount + 1}
-              </button>
-            ) : null}
-          </div>
-        </section>
-      </div>
-    </div>
-  );
+                <section className="challenge-runner__section">
+                    <div className="challenge-runner__section-header challenge-runner__section-header--alt">
+                        <div className="challenge-runner__section-title">
+                            <FiInfo className="challenge-runner__icon" />
+                            <span>Hints</span>
+                        </div>
+                    </div>
+                    <div className="challenge-runner__content">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {challenge.hints.map((hint, index) => (
+                                revealedHints.has(index) ? (
+                                    <div key={index} className="challenge-runner__hint-item">
+                                        {hint}
+                                    </div>
+                                ) : (
+                                    <button
+                                        key={index}
+                                        type="button"
+                                        onClick={() => revealHint(index)}
+                                        className="challenge-runner__reveal-btn"
+                                    >
+                                        Hint {index + 1}
+                                    </button>
+                                )
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    );
 }
