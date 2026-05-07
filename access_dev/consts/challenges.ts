@@ -216,7 +216,7 @@ export const challenges: ChallengeDefinition[] = [
         display: grid;
         place-items: center;
         background: #f4eafe;
-        color: #8c70a6;
+        color: #a28ab9;
       }
 
       .card {
@@ -227,34 +227,42 @@ export const challenges: ChallengeDefinition[] = [
         background: rgba(255, 255, 255, 0.6);
       }
 
-      .cta {
+      .sample-title {
+        color: #b49fcb;
+      }
+
+      .sample-body {
+        color: #b59ccb;
+      }
+
+      .sample-button {
         border: 0;
         padding: 12px 18px;
         border-radius: 999px;
-        background: #b58df5;
-        color: #f8f3ff;
+        background: #cfb5fb;
+        color: #fbf8ff;
       }
     </style>
   </head>
   <body>
     <section class="card">
-      <h2>Contrast Demo</h2>
-      <p class="small">Improve the contrast to make this easier to read.</p>
-      <button class="cta" type="button">Continue</button>
+      <h1 id="sample-title" class="sample-title">Contrast Demo</h1>
+      <p id="sample-body" class="sample-body">Improve the contrast to make this easier to read.</p>
+      <button id="sample-button" class="sample-button" type="button">Continue</button>
     </section>
   </body>
 </html>`,
     previewTitle: "Contrast Demo",
-    previewDescription: "This preview uses low-contrast foregrounds. Increase contrast (color or background) until it meets WCAG thresholds.",
+    previewDescription: "This preview uses a blur-based low-vision simulation with three contrast problems: title, body text, and button.",
     errors: [
-      "Normal body text fails the 4.5:1 contrast ratio.",
-      "Button text contrast is too low against its background.",
-      "Secondary text elements are difficult to perceive.",
+      "The title contrast is below AA.",
+      "The body text contrast is below AA.",
+      "The button contrast is below AA.",
     ],
     hints: [
-      "Check computed styles for foreground and background colors.",
-      "Aim for 4.5:1 for normal text, 3:1 for large text.",
-      "Adjust lightness/saturation or change background to increase ratio.",
+      "Make the title easier to read without changing the layout.",
+      "Make the body copy darker or the background lighter.",
+      "Tune the button fill/text colors until the label is clearly readable.",
     ],
     validation: `// Example contrast check (consumer code should compute actual rgb values)
 function luminance(r,g,b){

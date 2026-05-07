@@ -94,31 +94,21 @@ function getPreviewDoc(challenge: ChallengeDefinition, code: string) {
         return code.replace(
             "</head>",
             `<style>
-        html,
-        body,
         body * {
-          filter: blur(2.8px) saturate(0.8) brightness(0.92);
+                    filter: blur(1px) saturate(0.9) brightness(0.95);
         }
+
+                #sample-title,
+                #sample-body,
+                #sample-button {
+                    outline: 2px dashed rgba(76, 29, 149, 0.35);
+                    outline-offset: 4px;
+                }
 
         body {
           overflow: hidden;
         }
 
-        body::after {
-          content: "Contrast barrier active";
-          position: fixed;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          padding: 12px 16px;
-          border-radius: 999px;
-          background: rgba(255, 255, 255, 0.7);
-          color: #4c1d95;
-          font: 600 0.85rem/1.2 Inter, Arial, sans-serif;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          filter: none;
-        }
       </style>
 </head>`
         );
@@ -173,6 +163,89 @@ function parseCssColor(value: string) {
     }
 
     return null;
+}
+
+function extractCssText(code: string) {
+    const matches = code.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi);
+    return Array.from(matches, (match) => match[1] ?? "").join("\n");
+}
+
+function getRuleDeclarations(cssText: string, selector: string) {
+    const declarations: Record<string, string> = {};
+    const blockRegex = /([^{}]+)\{([^{}]+)\}/g;
+    let blockMatch = blockRegex.exec(cssText);
+
+    while (blockMatch) {
+        const selectors = blockMatch[1].split(",").map((item) => item.trim());
+        if (selectors.includes(selector)) {
+            const rules = blockMatch[2].split(";");
+            for (const rule of rules) {
+                const [rawKey, rawValue] = rule.split(":");
+                const key = rawKey?.trim().toLowerCase();
+                const value = rawValue?.trim();
+
+                if (key && value) {
+                    declarations[key] = value;
+                }
+            }
+        }
+
+        blockMatch = blockRegex.exec(cssText);
+    }
+
+    return declarations;
+}
+
+function resolveColorFromCss(cssText: string, selectors: string[], properties: string[]) {
+    for (const selector of selectors) {
+        const declarations = getRuleDeclarations(cssText, selector);
+        for (const property of properties) {
+            const value = declarations[property.toLowerCase()];
+            const parsed = value ? parseCssColor(value) : null;
+            if (parsed) {
+                return parsed;
+            }
+        }
+    }
+
+    return null;
+}
+
+function getContrastMetrics(code: string) {
+    const doc = parseHtmlDocument(code);
+    if (!doc) {
+        return null;
+    }
+
+    const cssText = extractCssText(code);
+    const bodyElement = doc.body;
+    const title = doc.querySelector("#sample-title") as HTMLElement | null;
+    const bodyText = doc.querySelector("#sample-body") as HTMLElement | null;
+    const button = doc.querySelector("#sample-button") as HTMLElement | null;
+
+    const bodyBg =
+        resolveColorFromCss(cssText, ["body"], ["background", "background-color"]) ||
+        parseCssColor(bodyElement?.style.background || bodyElement?.style.backgroundColor || "");
+    const titleFg =
+        resolveColorFromCss(cssText, ["#sample-title", ".sample-title", "h1"], ["color"]) ||
+        parseCssColor(title?.style.color || "") ||
+        resolveColorFromCss(cssText, ["body"], ["color"]);
+    const bodyTextFg =
+        resolveColorFromCss(cssText, ["#sample-body", ".sample-body", "p"], ["color"]) ||
+        parseCssColor(bodyText?.style.color || "") ||
+        resolveColorFromCss(cssText, ["body"], ["color"]);
+    const buttonFg =
+        resolveColorFromCss(cssText, ["#sample-button", ".sample-button", "button"], ["color"]) ||
+        parseCssColor(button?.style.color || "");
+    const buttonBg =
+        resolveColorFromCss(cssText, ["#sample-button", ".sample-button", "button"], ["background", "background-color"]) ||
+        parseCssColor(button?.style.background || button?.style.backgroundColor || "");
+
+    return {
+        title: titleFg && bodyBg ? contrastRatio(titleFg, bodyBg) : null,
+        body: bodyTextFg && bodyBg ? contrastRatio(bodyTextFg, bodyBg) : null,
+        button: buttonFg && buttonBg ? contrastRatio(buttonFg, buttonBg) : null,
+    };
 }
 
 function luminance(rgb: number[]) {
@@ -290,22 +363,12 @@ function evaluateChallengeIssues(challenge: ChallengeDefinition, code: string) {
         return [allInputsHaveAssociations, buttonHasGoodName, statusHasLiveRegion];
     }
 
-    const body = doc.body;
-    const bodyFg = parseCssColor(body?.style.color || "");
-    const bodyBg = parseCssColor(body?.style.background || body?.style.backgroundColor || "");
-    const bodyContrastPass = Boolean(bodyFg && bodyBg && contrastRatio(bodyFg, bodyBg) >= 4.5);
+    const metrics = getContrastMetrics(code);
+    const titleContrastPass = Boolean(metrics?.title && metrics.title >= 4.5);
+    const bodyContrastPass = Boolean(metrics?.body && metrics.body >= 4.5);
+    const buttonContrastPass = Boolean(metrics?.button && metrics.button >= 4.5);
 
-    const button = doc.querySelector(".cta") as HTMLElement | null;
-    const buttonFg = parseCssColor(button?.style.color || "");
-    const buttonBg = parseCssColor(button?.style.background || button?.style.backgroundColor || "");
-    const buttonContrastPass = Boolean(buttonFg && buttonBg && contrastRatio(buttonFg, buttonBg) >= 4.5);
-
-    const secondary = (doc.querySelector(".small") as HTMLElement | null) ?? (doc.querySelector("p") as HTMLElement | null);
-    const secondaryFg = parseCssColor(secondary?.style.color || body?.style.color || "");
-    const secondaryBg = parseCssColor(body?.style.background || body?.style.backgroundColor || "");
-    const secondaryPass = Boolean(secondaryFg && secondaryBg && contrastRatio(secondaryFg, secondaryBg) >= 4.5);
-
-    return [bodyContrastPass, buttonContrastPass, secondaryPass];
+    return [titleContrastPass, bodyContrastPass, buttonContrastPass];
 }
 
 function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinition) {
@@ -477,6 +540,13 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
         [challenge.errors.length, activeErrors.length]
     );
     const hintsUsed = revealedHints.size;
+    const contrastMetrics = useMemo(() => {
+        if (challenge.type !== "contrast") {
+            return null;
+        }
+
+        return getContrastMetrics(code);
+    }, [challenge.type, code]);
     const screenReaderSimulation = useMemo(() => {
         if (challenge.type !== "screen-reader") {
             return null;
@@ -591,6 +661,19 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                         </div>
                     ) : (
                         <div className="challenge-runner__preview-container">
+                            {contrastMetrics ? (
+                                <div style={{ display: "flex", gap: "8px", padding: "8px 10px", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)" }}>
+                                    <div className="challenge-runner__hint-item" style={{ margin: 0, padding: "6px 10px" }}>
+                                        Title: {contrastMetrics.title ? `${contrastMetrics.title.toFixed(2)}:1` : "n/a"}
+                                    </div>
+                                    <div className="challenge-runner__hint-item" style={{ margin: 0, padding: "6px 10px" }}>
+                                        Body: {contrastMetrics.body ? `${contrastMetrics.body.toFixed(2)}:1` : "n/a"}
+                                    </div>
+                                    <div className="challenge-runner__hint-item" style={{ margin: 0, padding: "6px 10px" }}>
+                                        Button: {contrastMetrics.button ? `${contrastMetrics.button.toFixed(2)}:1` : "n/a"}
+                                    </div>
+                                </div>
+                            ) : null}
                             <iframe
                                 title={`${challenge.title} preview`}
                                 sandbox="allow-scripts allow-modals"
