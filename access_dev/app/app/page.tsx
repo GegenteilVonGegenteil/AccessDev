@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { VStack, HStack, Text, Box, ProgressRoot, ProgressTrack, ProgressRange, Icon, Button } from "@chakra-ui/react";
-import { course } from "@/consts/course";
+import { course } from "@/consts/challenges";
 import CourseCard from "@/components/ui/CourseCard";
 import { getCourseProgress, markStepCompleted } from "@/lib/progress";
 
@@ -10,15 +10,27 @@ export default function Home() {
     const coursePlan = course;
     const totalSteps = coursePlan.steps.length;
     const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+    const [isMounted, setIsMounted] = useState(false);
+    const completedSet = useMemo(() => new Set(completedStepIds), [completedStepIds]);
+    const completedCount = completedStepIds.length;
+    const progressPercentage = totalSteps > 0 ? (completedCount / totalSteps) * 100 : 0;
 
     useEffect(() => {
+        setIsMounted(true);
+
         const stored = getCourseProgress();
         setCompletedStepIds(stored.completedStepIds);
     }, []);
 
-    const completedSet = useMemo(() => new Set(completedStepIds), [completedStepIds]);
-    const completedCount = completedStepIds.length;
-    const progressPercentage = totalSteps > 0 ? (completedCount / totalSteps) * 100 : 0;
+    if (!isMounted) {
+        return (
+            <div className="flex min-h-[50vh] items-center justify-center">
+                <Text fontSize="lg" color="var(--color-lavender-300)">
+                    Loading course plan...
+                </Text>
+            </div>
+        );
+    }
 
     const handleStepAction = (stepId: string) => {
         const updated = markStepCompleted(stepId);
