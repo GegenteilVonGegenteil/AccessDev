@@ -59,10 +59,13 @@
 }
 
 .challenge-runner__preview-container {
+  display: flex;
+  flex-direction: column;
   height: 544px;
   min-height: 544px;
   background-color: var(--color-lavender-50);
   padding: 0;
+  box-sizing: border-box;
 }
 
 .challenge-runner__preview-container--screen-reader {
@@ -168,4 +171,11 @@
 .challenge-runner__icon {
   width: 20px;
   height: 20px;
+}
+
+.challenge-runner__preview-iframe {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border: none;
 }
