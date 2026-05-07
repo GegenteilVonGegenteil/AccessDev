@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { basicSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { FiAlertTriangle, FiEye, FiInfo } from "react-icons/fi";
 import type { ChallengeDefinition } from "@/consts/challenges";
-import { Button, Icon, IconButton, Text } from "@chakra-ui/react";
+import { Button, IconButton, Text } from "@chakra-ui/react";
 import { LuCodeXml } from "react-icons/lu";
 import "./challenge-runner.css";
 
@@ -49,35 +50,38 @@ const editorTheme = EditorView.theme({
     },
 });
 
-function getInitialHintCount(totalHints: number) {
-    return totalHints > 0 ? 1 : 0;
-}
-
 function getPreviewDoc(challenge: ChallengeDefinition, code: string) {
     if (challenge.type === "keyboard-navigation") {
         return code.replace(
                         "</head>",
                         `<style>
-                body {
-                  pointer-events: none !important;
-                }
-
-                button,
-                a,
-                input,
-                select,
-                textarea,
-                [role="button"],
-                [tabindex]:not([tabindex="-1"]) {
-                    pointer-events: auto !important;
-                    cursor: pointer !important;
-                }
+                                body,
+                                body * {
+                                    pointer-events: none !important;
+                                }
 
                 :focus-visible {
                     outline: 3px solid #7c3aed;
                     outline-offset: 4px;
                 }
             </style>
+                        <script>
+                            (function () {
+                                const target = document.getElementById("target");
+                                if (!target) {
+                                    return;
+                                }
+
+                                const notifyParent = function () {
+                                    window.parent.postMessage({ type: "challenge-target-triggered", slug: "keyboard-navigation" }, "*");
+                                };
+
+                                target.addEventListener("click", function (event) {
+                                    event.preventDefault();
+                                    notifyParent();
+                                });
+                            })();
+                        </script>
 </head>`
                 );
     }
@@ -132,6 +136,158 @@ function stripTags(value: string) {
         .replace(/&gt;/gi, ">")
         .replace(/\s+/g, " ")
         .trim();
+}
+
+function parseHexColor(value: string) {
+    const clean = value.trim().replace("#", "");
+
+    if (clean.length === 3) {
+        return clean.split("").map((ch) => Number.parseInt(ch + ch, 16));
+    }
+
+    if (clean.length === 6) {
+        return [
+            Number.parseInt(clean.slice(0, 2), 16),
+            Number.parseInt(clean.slice(2, 4), 16),
+            Number.parseInt(clean.slice(4, 6), 16),
+        ];
+    }
+
+    return null;
+}
+
+function parseCssColor(value: string) {
+    const normalized = value.trim().toLowerCase();
+
+    if (normalized.startsWith("#")) {
+        return parseHexColor(normalized);
+    }
+
+    const rgbMatch = normalized.match(/rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+    if (rgbMatch) {
+        return [
+            Number.parseInt(rgbMatch[1], 10),
+            Number.parseInt(rgbMatch[2], 10),
+            Number.parseInt(rgbMatch[3], 10),
+        ];
+    }
+
+    return null;
+}
+
+function luminance(rgb: number[]) {
+    const channels = rgb.map((channel) => {
+        const value = channel / 255;
+        return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+    });
+
+    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+function contrastRatio(foreground: number[], background: number[]) {
+    const l1 = luminance(foreground);
+    const l2 = luminance(background);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+
+function getAccessibleInputName(input: HTMLInputElement, doc: Document) {
+    const ariaLabel = input.getAttribute("aria-label")?.trim();
+    if (ariaLabel) {
+        return ariaLabel;
+    }
+
+    const labelledBy = input.getAttribute("aria-labelledby")?.trim();
+    if (labelledBy) {
+        return labelledBy
+            .split(/\s+/)
+            .map((id) => doc.getElementById(id)?.textContent?.trim() ?? "")
+            .join(" ")
+            .trim();
+    }
+
+    if (!input.id) {
+        return "";
+    }
+
+    const label = doc.querySelector(`label[for="${input.id}"]`);
+    return label?.textContent?.trim() ?? "";
+}
+
+function evaluateChallengeIssues(challenge: ChallengeDefinition, code: string) {
+    if (typeof DOMParser === "undefined") {
+        return challenge.errors.map(() => false);
+    }
+
+    const doc = new DOMParser().parseFromString(code, "text/html");
+
+    if (challenge.type === "keyboard-navigation") {
+        const target = doc.getElementById("target");
+        const targetTabindex = target?.getAttribute("tabindex");
+        const targetIsInteractive = target ? ["a", "button"].includes(target.tagName.toLowerCase()) : false;
+        const targetReachable = Boolean(targetIsInteractive && targetTabindex !== "-1");
+
+        const nonInteractiveControl = Boolean(
+            doc.querySelector("div[role='button'], div[role='link'], span[role='button'], span[role='link'], div[onclick], span[onclick]")
+        );
+
+        const positiveTabindex = Array.from(doc.querySelectorAll("[tabindex]"))
+            .some((element) => {
+                const raw = element.getAttribute("tabindex");
+                if (!raw) {
+                    return false;
+                }
+                const parsed = Number.parseInt(raw, 10);
+                return Number.isFinite(parsed) && parsed > 0;
+            });
+
+        const hasTabTrap = Array.from(doc.querySelectorAll("[onkeydown], [onkeypress], [onkeyup]"))
+            .some((element) => {
+                const handler =
+                    element.getAttribute("onkeydown") ||
+                    element.getAttribute("onkeypress") ||
+                    element.getAttribute("onkeyup") ||
+                    "";
+
+                return /Tab/i.test(handler) && /preventDefault\s*\(/i.test(handler);
+            });
+
+        return [targetReachable, !nonInteractiveControl, !positiveTabindex, !hasTabTrap];
+    }
+
+    if (challenge.type === "screen-reader") {
+        const inputs = Array.from(doc.querySelectorAll("input"));
+
+        const allInputsHaveAssociations = inputs.every((input) => {
+            const hasLabelFor = Boolean(input.id && doc.querySelector(`label[for="${input.id}"]`));
+            const hasLabelledBy = Boolean(input.getAttribute("aria-labelledby")?.trim());
+            return hasLabelFor || hasLabelledBy;
+        });
+
+        const allInputsNamed = inputs.every((input) => getAccessibleInputName(input, doc).length > 0);
+
+        const names = inputs.map((input) => getAccessibleInputName(input, doc).toLowerCase()).filter(Boolean);
+        const uniqueNames = new Set(names);
+        const nonAmbiguous = names.length > 0 && uniqueNames.size === names.length;
+
+        return [allInputsHaveAssociations, allInputsNamed, nonAmbiguous];
+    }
+
+    const body = doc.body;
+    const bodyFg = parseCssColor(body?.style.color || "");
+    const bodyBg = parseCssColor(body?.style.background || body?.style.backgroundColor || "");
+    const bodyContrastPass = Boolean(bodyFg && bodyBg && contrastRatio(bodyFg, bodyBg) >= 4.5);
+
+    const button = doc.querySelector(".cta") as HTMLElement | null;
+    const buttonFg = parseCssColor(button?.style.color || "");
+    const buttonBg = parseCssColor(button?.style.background || button?.style.backgroundColor || "");
+    const buttonContrastPass = Boolean(buttonFg && buttonBg && contrastRatio(buttonFg, buttonBg) >= 4.5);
+
+    const secondary = (doc.querySelector(".small") as HTMLElement | null) ?? (doc.querySelector("p") as HTMLElement | null);
+    const secondaryFg = parseCssColor(secondary?.style.color || body?.style.color || "");
+    const secondaryBg = parseCssColor(body?.style.background || body?.style.backgroundColor || "");
+    const secondaryPass = Boolean(secondaryFg && secondaryBg && contrastRatio(secondaryFg, secondaryBg) >= 4.5);
+
+    return [bodyContrastPass, buttonContrastPass, secondaryPass];
 }
 
 function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinition) {
@@ -197,6 +353,7 @@ function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinit
 }
 
 export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
+    const router = useRouter();
     const editorHostRef = useRef<HTMLDivElement | null>(null);
     const editorViewRef = useRef<EditorView | null>(null);
     const [code, setCode] = useState(challenge.starterCode);
@@ -256,6 +413,16 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
     }, [code]);
 
     const previewDoc = useMemo(() => getPreviewDoc(challenge, code), [challenge, code]);
+    const resolvedIssues = useMemo(() => evaluateChallengeIssues(challenge, code), [challenge, code]);
+    const activeErrors = useMemo(
+        () => challenge.errors.filter((_, index) => !resolvedIssues[index]),
+        [challenge.errors, resolvedIssues]
+    );
+    const resolvedCount = useMemo(
+        () => challenge.errors.length - activeErrors.length,
+        [challenge.errors.length, activeErrors.length]
+    );
+    const hintsUsed = revealedHints.size;
     const screenReaderSimulation = useMemo(() => {
         if (challenge.type !== "screen-reader") {
             return null;
@@ -263,6 +430,25 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
 
         return extractScreenReaderSimulation(code, challenge);
     }, [challenge, code]);
+
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            const data = event.data as { type?: string; slug?: string } | null;
+
+            if (!data || data.type !== "challenge-target-triggered") {
+                return;
+            }
+
+            if (data.slug !== challenge.slug) {
+                return;
+            }
+
+            router.push("/app/success");
+        };
+
+        window.addEventListener("message", handleMessage);
+        return () => window.removeEventListener("message", handleMessage);
+    }, [challenge.slug, router]);
 
     const handleReset = () => {
         setCode(challenge.starterCode);
@@ -296,6 +482,14 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                 <IconButton aria-label="Challenge information" rounded="full" background="transparent">
                     <FiInfo className="h-5 w-5" />
                 </IconButton>
+            </div>
+            <div className="challenge-runner__content" style={{ marginTop: "-8px", marginBottom: "8px" }}>
+                <div className="challenge-runner__hint-item">
+                    Resolved: {resolvedCount}/{challenge.errors.length} issues
+                </div>
+                <div className="challenge-runner__hint-item" style={{ marginTop: "8px" }}>
+                    Hints used: {hintsUsed}
+                </div>
             </div>
 
             <div className="challenge-runner__grid">
@@ -369,7 +563,9 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                         </div>
                     </div>
                     <div className="challenge-runner__content">
-                        {challenge.errors.map((error) => (
+                        {activeErrors.length === 0 ? (
+                            <div className="challenge-runner__hint-item">All current issues resolved.</div>
+                        ) : activeErrors.map((error) => (
                             <div key={error} className="challenge-runner__error-item">
                                 {error}
                             </div>

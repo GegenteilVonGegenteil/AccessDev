@@ -12,6 +12,7 @@ export type ChallengeDefinition = {
   previewDescription: string;
   errors: string[];
   hints: string[];
+  validation?: string;
 };
 
 export const challenges: ChallengeDefinition[] = [
@@ -19,9 +20,9 @@ export const challenges: ChallengeDefinition[] = [
     id: 1,
     slug: "keyboard-navigation",
     title: "Keyboard Navigation",
-    subtitle: "Fix the focus order and make every control reachable with the keyboard.",
+    subtitle: "Keyboard accessibility (tab order, focusable controls)",
     type: "keyboard-navigation",
-    objective: "Repair broken keyboard navigation in the preview.",
+    objective: "Make the target link reachable with exactly two Tab presses from the start of the page and ensure it is a proper interactive element.",
     starterCode: `<!doctype html>
 <html lang="en">
   <head>
@@ -60,36 +61,64 @@ export const challenges: ChallengeDefinition[] = [
         color: white;
         font: inherit;
       }
+      nav a { margin-right: 12px }
     </style>
   </head>
   <body>
-    <div class="container">
+    <main class="container">
       <h2>Button Demo</h2>
-      <p>Make the button clickable:</p>
-      <div class="clickable" onclick="alert('Clicked!')">Click Me</div>
-    </div>
+      <p>Find and activate the target using exactly two Tab presses.</p>
+
+      <div class="clickable" role="link" onclick="alert('div link')">Fake Link (div)</div>
+
+      <button
+        id="trap"
+        class="clickable"
+        onkeydown="if (event.key === 'Tab') { event.preventDefault(); this.focus(); }"
+      >
+        Keyboard Trap Button
+      </button>
+
+      <a id="target" href="/app/success" tabindex="-1" class="clickable">Go to Success</a>
+    </main>
   </body>
 </html>`,
-    previewTitle: "Keyboard Trap Demo",
-    previewDescription: "The preview includes a broken menu and a skipped focus target. Your job is to restore predictable tab order and visible focus.",
+    previewTitle: "Keyboard Navigation",
+    previewDescription: "A navigation bar, content area, and a target action exist but the target is not reachable via keyboard by default. Fix focusability and order so two Tabs from the page start lands on the target.",
     errors: [
-      "Tab order skips an interactive control.",
-      "A menu item cannot be reached with the keyboard.",
-      "Focused elements do not have a visible state.",
+      "Target control has tabindex=\"-1\" and is skipped by Tab.",
+      "Non-interactive elements are used as controls (no keyboard support).",
+      "Incorrect tabindex values disrupt natural focus order.",
+      "An element traps keyboard focus and blocks normal Tab navigation.",
     ],
     hints: [
-      "Check the DOM order before adding JavaScript focus management.",
-      "Use semantic buttons and links instead of clickable divs.",
-      "Make sure the preview shows a focus ring or outline.",
+      "Replace decorative divs with <button> or <a> when they perform actions.",
+      "Remove or fix tabindex attributes that override natural order.",
+      "Remove any key handlers that prevent Tab from moving focus forward.",
+      "Ensure the DOM order matches logical/visual order so Tab works predictably.",
     ],
+    validation: `// Simulate starting at document.body then pressing Tab twice
+(function(){
+  const start = document.body;
+  start.focus?.();
+  function pressTab() {
+    const e = new KeyboardEvent('keydown', {key: 'Tab', bubbles: true});
+    document.dispatchEvent(e);
+  }
+  // Many environments won't actually move focus via synthetic events; test heuristically:
+  const els = Array.from(document.querySelectorAll('a, button, [tabindex]'))
+    .filter(e => !e.hasAttribute('disabled') && e.getAttribute('tabindex') !== '-1');
+  // Expect the target to be the second focusable control
+  return els[1] && els[1].id === 'target';
+})()`,
   },
   {
     id: 2,
     slug: "screen-reader",
-    title: "Screen Reader Output",
-    subtitle: "Repair labels, headings, and live announcements so the output makes sense.",
+    title: "Form Labels",
+    subtitle: "Form labeling and accessible names for inputs",
     type: "screen-reader",
-    objective: "Make the preview announce meaningful text to assistive technology.",
+    objective: "Ensure each form field has a proper accessible name via a <label> or aria attributes so screen readers announce them correctly.",
     starterCode: `<!doctype html>
 <html lang="en">
   <head>
@@ -125,37 +154,50 @@ export const challenges: ChallengeDefinition[] = [
     </style>
   </head>
   <body>
-    <main class="card">
-      <h1>Welcome</h1>
-      <h3>Announcement Demo</h3>
-      <p>Press the action button to update the status.</p>
-      <div class="status">Waiting for action...</div>
-      <button type="button" onclick="document.querySelector('.status').textContent = 'Action complete!'">
-        Do Thing
-      </button>
-    </main>
+      <main class="card">
+        <h1>Contact</h1>
+        <p>Fill out the form below.</p>
+
+        <form>
+          <input id="first" type="text" placeholder="First name" />
+          <input id="last" type="text" placeholder="Last name" />
+          <input id="email" type="email" placeholder="Email" />
+          <button type="submit">Submit</button>
+        </form>
+
+        <div class="status" aria-live="polite">Waiting for action...</div>
+      </main>
   </body>
 </html>`,
-    previewTitle: "Announcement Demo",
-    previewDescription: "The preview is missing useful labels and has confusing heading structure. Fix the accessible output shown in the challenge runner.",
-    errors: [
-      "The main action button has no accessible name.",
-      "Heading levels skip a section.",
-      "Dynamic status text is not announced.",
-    ],
-    hints: [
-      "Check aria-label, aria-labelledby, and visible text content.",
-      "Keep heading levels sequential.",
-      "Use an aria-live region for changing status text.",
-    ],
+      previewTitle: "Form Labeling",
+      previewDescription: "A simple form contains inputs without labels; assistive technology reads them as repeated 'Edit text'. Add labels or accessible names so each field is announced distinctly.",
+      errors: [
+        "Inputs lack associated <label> elements.",
+        "No aria-label or aria-labelledby on fields.",
+        "Form fields are announced ambiguously by screen readers.",
+      ],
+      hints: [
+        "Add <label for=\"id\"> text and matching id attributes.",
+        "Alternatively add aria-label or aria-labelledby for each input.",
+        "Visible labels improve usability for all users.",
+      ],
+      validation: `const inputs = document.querySelectorAll('input');
+  [...inputs].every(input => {
+    const hasLabel = Boolean(
+      input.getAttribute('aria-label') ||
+      input.getAttribute('aria-labelledby') ||
+      (input.id && document.querySelector('label[for="' + input.id + '"]'))
+    );
+    return hasLabel;
+  })`,
   },
   {
     id: 3,
     slug: "contrast",
-    title: "Colour Contrast",
-    subtitle: "Improve foreground/background contrast until it passes accessibility checks.",
+    title: "Color Contrast",
+    subtitle: "Fix low contrast so text and controls meet WCAG thresholds",
     type: "contrast",
-    objective: "Adjust the preview colors so text and controls meet contrast requirements.",
+    objective: "Adjust colors so normal text meets a 4.5:1 contrast ratio (or 3:1 for large text).",
     starterCode: `<!doctype html>
 <html lang="en">
   <head>
@@ -197,23 +239,37 @@ export const challenges: ChallengeDefinition[] = [
   <body>
     <section class="card">
       <h2>Contrast Demo</h2>
-      <p>Improve the contrast to make this easier to read.</p>
+      <p class="small">Improve the contrast to make this easier to read.</p>
       <button class="cta" type="button">Continue</button>
     </section>
   </body>
 </html>`,
     previewTitle: "Contrast Demo",
-    previewDescription: "The preview intentionally uses low-contrast text and buttons. Increase contrast without destroying the visual design.",
+    previewDescription: "This preview uses low-contrast foregrounds. Increase contrast (color or background) until it meets WCAG thresholds.",
     errors: [
-      "Body text contrast is below WCAG AA.",
-      "Button text is too faint against the background.",
-      "Secondary metadata is hard to read.",
+      "Normal body text fails the 4.5:1 contrast ratio.",
+      "Button text contrast is too low against its background.",
+      "Secondary text elements are difficult to perceive.",
     ],
     hints: [
-      "Use a contrast checker on the computed foreground and background colors.",
-      "Aim for at least 4.5:1 for normal text.",
-      "Try changing saturation or lightness before changing the full palette.",
+      "Check computed styles for foreground and background colors.",
+      "Aim for 4.5:1 for normal text, 3:1 for large text.",
+      "Adjust lightness/saturation or change background to increase ratio.",
     ],
+    validation: `// Example contrast check (consumer code should compute actual rgb values)
+function luminance(r,g,b){
+  const a=[r,g,b].map(v=>{
+    v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4);
+  });
+  return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
+}
+function contrastRatio(fgRGB, bgRGB){
+  const L1 = luminance(...fgRGB);
+  const L2 = luminance(...bgRGB);
+  return (Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05);
+}
+// Consumers should extract computed colors and verify ratio >= 4.5 for normal text
+`,
   },
 ];
 

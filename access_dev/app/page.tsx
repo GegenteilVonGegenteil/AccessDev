@@ -1,3 +1,5 @@
+"use client";
+
 import { Heading, Text, Button, Box } from "@chakra-ui/react";
 import { majorMonoDisplay } from "./fonts";
 import { LuChevronRight } from "react-icons/lu";
