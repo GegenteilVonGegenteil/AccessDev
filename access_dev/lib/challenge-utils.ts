@@ -185,6 +185,61 @@ export function getContrastMetrics(code: string): {
     };
 }
 
+export type ContrastColorTargetKey = "title" | "body" | "buttonText" | "buttonBackground";
+
+export type ContrastColorTargets = Record<ContrastColorTargetKey, string | null>;
+
+function rgbToHex(rgb: number[]) {
+    return `#${rgb.map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+}
+
+export function getContrastColorTargets(code: string): ContrastColorTargets {
+    const cssText = extractCssText(code);
+
+    const titleRgb = resolveColorFromCss(cssText, ["#sample-title", ".sample-title", "h1"], ["color"]);
+    const bodyRgb = resolveColorFromCss(cssText, ["#sample-body", ".sample-body", "p"], ["color"]);
+    const buttonTextRgb = resolveColorFromCss(cssText, ["#sample-button", ".sample-button", "button"], ["color"]);
+    const buttonBackgroundRgb = resolveColorFromCss(cssText, ["#sample-button", ".sample-button", "button"], ["background", "background-color"]);
+
+    return {
+        title: titleRgb ? rgbToHex(titleRgb) : null,
+        body: bodyRgb ? rgbToHex(bodyRgb) : null,
+        buttonText: buttonTextRgb ? rgbToHex(buttonTextRgb) : null,
+        buttonBackground: buttonBackgroundRgb ? rgbToHex(buttonBackgroundRgb) : null,
+    };
+}
+
+function escapeRegExp(value: string) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function replaceCssPropertyValue(cssText: string, selector: string, property: string, newValue: string) {
+    const selectorPattern = escapeRegExp(selector);
+    const propertyPattern = escapeRegExp(property);
+    const blockPattern = new RegExp(`(${selectorPattern}\\s*\\{[\\s\\S]*?${propertyPattern}\\s*:\\s*)([^;]+)(;?)`, "i");
+    return cssText.replace(blockPattern, `$1${newValue}$3`);
+}
+
+export function setContrastColorTargetValue(code: string, target: ContrastColorTargetKey, newValue: string) {
+    const styleMatch = /(<style[^>]*>)([\s\S]*?)(<\/style>)/i.exec(code);
+
+    if (!styleMatch) {
+        return code;
+    }
+
+    const selectorsByTarget: Record<ContrastColorTargetKey, { selector: string; property: string }> = {
+        title: { selector: ".sample-title", property: "color" },
+        body: { selector: ".sample-body", property: "color" },
+        buttonText: { selector: ".sample-button", property: "color" },
+        buttonBackground: { selector: ".sample-button", property: "background" },
+    };
+
+    const { selector, property } = selectorsByTarget[target];
+    const nextCssText = replaceCssPropertyValue(styleMatch[2] ?? "", selector, property, newValue);
+
+    return code.replace(styleMatch[2] ?? "", nextCssText);
+}
+
 // ============================================================================
 // Challenge-Specific Validation
 // ============================================================================

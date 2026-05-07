@@ -14,12 +14,27 @@ import {
     evaluateChallengeIssues,
     getContrastMetrics,
     extractScreenReaderSimulation,
+    getContrastColorTargets,
+    setContrastColorTargetValue,
+    type ContrastColorTargetKey,
 } from "@/lib/challenge-utils";
 import "./challenge-runner.css";
 
 type ChallengeRunnerProps = {
     challenge: ChallengeDefinition;
 };
+
+type ContrastTargetOption = {
+    key: ContrastColorTargetKey;
+    label: string;
+};
+
+const contrastTargetOptions: ContrastTargetOption[] = [
+    { key: "title", label: "Title text" },
+    { key: "body", label: "Body text" },
+    { key: "buttonText", label: "Button text" },
+    { key: "buttonBackground", label: "Button fill" },
+];
 
 const editorTheme = EditorView.theme({
     "&": {
@@ -63,6 +78,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
     const [code, setCode] = useState(challenge.starterCode);
     const [revealedHints, setRevealedHints] = useState<Set<number>>(new Set());
     const [isMounted, setIsMounted] = useState(false);
+    const [selectedContrastTarget, setSelectedContrastTarget] = useState<ContrastColorTargetKey>("title");
 
     useEffect(() => {
         setIsMounted(true);
@@ -138,6 +154,13 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
 
         return getContrastMetrics(code);
     }, [challenge.type, code]);
+    const contrastColorTargets = useMemo(() => {
+        if (challenge.type !== "contrast") {
+            return null;
+        }
+
+        return getContrastColorTargets(code);
+    }, [challenge.type, code]);
     const screenReaderSimulation = useMemo(() => {
         if (challenge.type !== "screen-reader") {
             return null;
@@ -206,6 +229,13 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
         setRevealedHints(newRevealed);
     };
 
+    const handleContrastColorChange = (nextColor: string) => {
+        setCode((currentCode) => setContrastColorTargetValue(currentCode, selectedContrastTarget, nextColor));
+    };
+
+    const selectedContrastColor =
+        contrastColorTargets?.[selectedContrastTarget] ?? "#000000";
+
     return (
         <div className="challenge-runner">
             <div className="challenge-runner__header">
@@ -233,8 +263,44 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                             Reset
                         </Button>
                     </div>
-                    <div className="challenge-runner__editor-container">
+                    <div className={challenge.type === "contrast" ? "challenge-runner__editor-container challenge-runner__editor-container--contrast" : "challenge-runner__editor-container"}>
                         <div ref={editorHostRef} className="challenge-runner__editor-host" />
+                        {challenge.type === "contrast" ? (
+                            <div className="challenge-runner__contrast-tools">
+                                <div className="challenge-runner__contrast-tools-header">
+                                    <div>
+                                        <div className="challenge-runner__contrast-tools-title">Color wheel</div>
+                                        <div className="challenge-runner__contrast-tools-description">
+                                            Pick a target, then adjust the hex value live in the editor.
+                                        </div>
+                                    </div>
+                                
+                                </div>
+
+                                <div className="challenge-runner__contrast-targets">
+                                    {contrastTargetOptions.map((target) => (
+                                        <button
+                                            key={target.key}
+                                            type="button"
+                                            className={selectedContrastTarget === target.key ? "challenge-runner__contrast-target challenge-runner__contrast-target--active" : "challenge-runner__contrast-target"}
+                                            onClick={() => setSelectedContrastTarget(target.key)}
+                                        >
+                                            {target.label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <label className="challenge-runner__contrast-picker-label">
+                                    <span className="challenge-runner__contrast-picker-title">Hex color picker</span>
+                                    <input
+                                        type="color"
+                                        value={selectedContrastColor}
+                                        onChange={(event) => handleContrastColorChange(event.target.value)}
+                                        className="challenge-runner__contrast-picker"
+                                    />
+                                </label>
+                            </div>
+                        ) : null}
                     </div>
                 </section>
 
