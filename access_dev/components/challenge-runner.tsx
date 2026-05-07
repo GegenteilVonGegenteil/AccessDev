@@ -95,7 +95,7 @@ function getPreviewDoc(challenge: ChallengeDefinition, code: string) {
             "</head>",
             `<style>
         body * {
-                    filter: blur(1px) saturate(0.9) brightness(0.95);
+                    filter: blur(1.5px) saturate(0.9) brightness(0.95);
         }
 
                 #sample-title,
