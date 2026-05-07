@@ -55,11 +55,6 @@ function getPreviewDoc(challenge: ChallengeDefinition, code: string) {
         return code.replace(
                         "</head>",
                         `<style>
-                                body,
-                                body * {
-                                    pointer-events: none !important;
-                                }
-
                 :focus-visible {
                     outline: 3px solid #7c3aed;
                     outline-offset: 4px;
@@ -639,8 +634,8 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                         </div>
                     </div>
                     {screenReaderSimulation ? (
-                        <div className="challenge-runner__preview-container">
-                            <div className="challenge-runner__simulated-output" aria-live="polite">
+                        <div className="challenge-runner__preview-container challenge-runner__preview-container--screen-reader">
+                            <div className="challenge-runner__simulated-output challenge-runner__simulated-output--transcript" aria-live="polite">
                                 <div className="challenge-runner__simulated-title">Simulated Screen Reader Output</div>
                                 {screenReaderSimulation.headingLines.map((line) => (
                                     <div key={line} className="challenge-runner__simulated-line">{line}</div>

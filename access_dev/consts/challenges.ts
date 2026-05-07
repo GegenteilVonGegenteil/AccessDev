@@ -66,10 +66,17 @@ export const challenges: ChallengeDefinition[] = [
   </head>
   <body>
     <main class="container">
-      <h2>Button Demo</h2>
-      <p>Find and activate the target using exactly two Tab presses.</p>
+      <h2>Keyboard Navigation</h2>
+      <p>Find and activate the target using Tab. The page contains focus-order and semantics problems.</p>
 
-      <div class="clickable" role="link" onclick="alert('div link')">Fake Link (div)</div>
+      <nav>
+        <button type="button" class="clickable">Home</button>
+        <button id="target" type="button" class="clickable">Go to Success</button>
+      </nav>
+
+      <div class="clickable" role="button" onclick="alert('div clicked')">Fake Button (div)</div>
+
+      <button class="clickable" tabindex="2">Positive tabindex</button>
 
       <button
         id="trap"
@@ -78,22 +85,20 @@ export const challenges: ChallengeDefinition[] = [
       >
         Keyboard Trap Button
       </button>
-
-      <a id="target" href="/app/success" tabindex="-1" class="clickable">Go to Success</a>
     </main>
   </body>
 </html>`,
     previewTitle: "Keyboard Navigation",
-    previewDescription: "A navigation bar, content area, and a target action exist but the target is not reachable via keyboard by default. Fix focusability and order so two Tabs from the page start lands on the target.",
+    previewDescription: "Focus order and focusable semantics are intentionally incorrect. Fix the order, remove positive tabindex values, stop trapping focus, and use proper interactive elements.",
     errors: [
       "Target control has tabindex=\"-1\" and is skipped by Tab.",
       "Non-interactive elements are used as controls (no keyboard support).",
-      "Incorrect tabindex values disrupt natural focus order.",
+      "Positive tabindex values disrupt natural focus order.",
       "An element traps keyboard focus and blocks normal Tab navigation.",
     ],
     hints: [
       "Replace decorative divs with <button> or <a> when they perform actions.",
-      "Remove or fix tabindex attributes that override natural order.",
+      "Remove positive tabindex values (e.g., tabindex=\"2\") to restore natural order.",
       "Remove any key handlers that prevent Tab from moving focus forward.",
       "Ensure the DOM order matches logical/visual order so Tab works predictably.",
     ],
@@ -159,9 +164,13 @@ export const challenges: ChallengeDefinition[] = [
         <p>Fill out the form below.</p>
 
         <form>
-          <input id="first" type="text" placeholder="First name" />
-          <input id="last" type="text" placeholder="Last name" />
+          <label for="name">Full name</label>
+          <input id="name" type="text" placeholder="Full name" />
+
+          <input id="nickname" type="text" placeholder="Nickname" aria-label="Nickname" />
+
           <input id="email" type="email" placeholder="Email" />
+
           <button type="submit">Click here</button>
         </form>
 
@@ -170,7 +179,7 @@ export const challenges: ChallengeDefinition[] = [
   </body>
 </html>`,
       previewTitle: "Form Labeling",
-      previewDescription: "A simple form contains unlabeled inputs, a vague action button, and a status region that is missing aria-live. Add labels and clearer names so the preview becomes readable.",
+      previewDescription: "A small form demonstrates proper and improper labeling patterns. Fix unlabeled inputs, give the button a clear name, and make the status region announce updates.",
       errors: [
         "Inputs lack associated <label> elements.",
         "The main action button has a vague accessible name.",
@@ -178,8 +187,8 @@ export const challenges: ChallengeDefinition[] = [
       ],
       hints: [
         "Add <label for=\"id\"> text and matching id attributes.",
-        "Use a specific button name instead of 'Click here'.",
-        "Add aria-live to the status region so updates are announced.",
+        "Use a specific button name instead of 'Click here' (e.g., 'Send message').",
+        "Add aria-live to the status region or use role=\"status\"/\"alert\" for announcements.",
       ],
       validation: `const inputs = document.querySelectorAll('input');
   [...inputs].every(input => {
@@ -253,16 +262,16 @@ export const challenges: ChallengeDefinition[] = [
   </body>
 </html>`,
     previewTitle: "Contrast Demo",
-    previewDescription: "This preview uses a blur-based low-vision simulation with three contrast problems: title, body text, and button.",
+    previewDescription: "A focused contrast exercise with three targets: title, body text, and button. Use the ratio bar to adjust colors in the <style> block.",
     errors: [
       "The title contrast is below AA.",
       "The body text contrast is below AA.",
       "The button contrast is below AA.",
     ],
     hints: [
-      "Make the title easier to read without changing the layout.",
-      "Make the body copy darker or the background lighter.",
-      "Tune the button fill/text colors until the label is clearly readable.",
+      "Make the title easier to read by increasing contrast in the .sample-title rule.",
+      "Make the body copy darker or the background lighter via the body or .sample-body rule.",
+      "Tune the button fill/text colors in .sample-button until the label meets the ratio.",
     ],
     validation: `// Example contrast check (consumer code should compute actual rgb values)
 function luminance(r,g,b){
