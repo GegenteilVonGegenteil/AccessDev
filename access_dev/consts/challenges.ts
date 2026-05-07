@@ -162,24 +162,24 @@ export const challenges: ChallengeDefinition[] = [
           <input id="first" type="text" placeholder="First name" />
           <input id="last" type="text" placeholder="Last name" />
           <input id="email" type="email" placeholder="Email" />
-          <button type="submit">Submit</button>
+          <button type="submit">Click here</button>
         </form>
 
-        <div class="status" aria-live="polite">Waiting for action...</div>
+        <div class="status">Waiting for action...</div>
       </main>
   </body>
 </html>`,
       previewTitle: "Form Labeling",
-      previewDescription: "A simple form contains inputs without labels; assistive technology reads them as repeated 'Edit text'. Add labels or accessible names so each field is announced distinctly.",
+      previewDescription: "A simple form contains unlabeled inputs, a vague action button, and a status region that is missing aria-live. Add labels and clearer names so the preview becomes readable.",
       errors: [
         "Inputs lack associated <label> elements.",
-        "No aria-label or aria-labelledby on fields.",
-        "Form fields are announced ambiguously by screen readers.",
+        "The main action button has a vague accessible name.",
+        "The status text is not announced because aria-live is missing.",
       ],
       hints: [
         "Add <label for=\"id\"> text and matching id attributes.",
-        "Alternatively add aria-label or aria-labelledby for each input.",
-        "Visible labels improve usability for all users.",
+        "Use a specific button name instead of 'Click here'.",
+        "Add aria-live to the status region so updates are announced.",
       ],
       validation: `const inputs = document.querySelectorAll('input');
   [...inputs].every(input => {

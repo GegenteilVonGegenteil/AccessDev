@@ -190,6 +190,16 @@ function contrastRatio(foreground: number[], background: number[]) {
     return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
 
+function parseHtmlDocument(code: string) {
+    if (typeof document === "undefined") {
+        return null;
+    }
+
+    const parsedDocument = document.implementation.createHTMLDocument("");
+    parsedDocument.documentElement.innerHTML = code;
+    return parsedDocument;
+}
+
 function getAccessibleInputName(input: HTMLInputElement, doc: Document) {
     const ariaLabel = input.getAttribute("aria-label")?.trim();
     if (ariaLabel) {
@@ -214,11 +224,11 @@ function getAccessibleInputName(input: HTMLInputElement, doc: Document) {
 }
 
 function evaluateChallengeIssues(challenge: ChallengeDefinition, code: string) {
-    if (typeof DOMParser === "undefined") {
+    const doc = parseHtmlDocument(code);
+
+    if (!doc) {
         return challenge.errors.map(() => false);
     }
-
-    const doc = new DOMParser().parseFromString(code, "text/html");
 
     if (challenge.type === "keyboard-navigation") {
         const target = doc.getElementById("target");
@@ -255,21 +265,29 @@ function evaluateChallengeIssues(challenge: ChallengeDefinition, code: string) {
     }
 
     if (challenge.type === "screen-reader") {
-        const inputs = Array.from(doc.querySelectorAll("input"));
+        const inputs = Array.from(doc.querySelectorAll("input:not([type='hidden'])"));
+        const button = doc.querySelector("button");
+        const statusRegion = doc.querySelector(".status");
 
         const allInputsHaveAssociations = inputs.every((input) => {
             const hasLabelFor = Boolean(input.id && doc.querySelector(`label[for="${input.id}"]`));
+            const hasAriaLabel = Boolean(input.getAttribute("aria-label")?.trim());
             const hasLabelledBy = Boolean(input.getAttribute("aria-labelledby")?.trim());
-            return hasLabelFor || hasLabelledBy;
+            return hasLabelFor || hasAriaLabel || hasLabelledBy;
         });
 
-        const allInputsNamed = inputs.every((input) => getAccessibleInputName(input, doc).length > 0);
+        const buttonHasGoodName = Boolean(button && stripTags(button.textContent || "").trim().toLowerCase() !== "click here");
+        const liveValue = statusRegion?.getAttribute("aria-live")?.trim().toLowerCase();
+        const roleValue = statusRegion?.getAttribute("role")?.trim().toLowerCase();
+        const statusHasLiveRegion = Boolean(
+            statusRegion && (
+                roleValue === "alarm" ||
+                liveValue === "polite" ||
+                liveValue === "assertive"
+            )
+        );
 
-        const names = inputs.map((input) => getAccessibleInputName(input, doc).toLowerCase()).filter(Boolean);
-        const uniqueNames = new Set(names);
-        const nonAmbiguous = names.length > 0 && uniqueNames.size === names.length;
-
-        return [allInputsHaveAssociations, allInputsNamed, nonAmbiguous];
+        return [allInputsHaveAssociations, buttonHasGoodName, statusHasLiveRegion];
     }
 
     const body = doc.body;
@@ -292,8 +310,22 @@ function evaluateChallengeIssues(challenge: ChallengeDefinition, code: string) {
 
 function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinition) {
     const headingLines: string[] = [];
+    const inputLines: string[] = [];
     const buttonLines: string[] = [];
     const warnings: string[] = [];
+    const doc = parseHtmlDocument(code);
+
+    if (!doc) {
+        return {
+            headingLines,
+            inputLines: ["No text inputs found."],
+            buttonLines: ["No buttons found."],
+            liveText: "No status region found.",
+            warnings,
+            introTitle: challenge.previewTitle,
+            introDescription: challenge.previewDescription,
+        };
+    }
 
     const headingRegex = /<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/gi;
     let headingMatch = headingRegex.exec(code);
@@ -315,6 +347,27 @@ function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinit
         headingMatch = headingRegex.exec(code);
     }
 
+    const inputs = Array.from(doc.querySelectorAll<HTMLInputElement>(
+        'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])'
+    ));
+    for (const [index, input] of inputs.entries()) {
+        const accessibleName = getAccessibleInputName(input, doc).trim();
+        const fieldType = (input.getAttribute("type") || "text").toLowerCase();
+        const announcementLabel = fieldType === "email" ? "Email field" : fieldType === "password" ? "Password field" : "Text field";
+        const fieldPrefix = `${announcementLabel} ${index + 1}`;
+
+        if (accessibleName.length > 0) {
+            inputLines.push(`${fieldPrefix}: ${accessibleName}`);
+        } else {
+            inputLines.push(`${fieldPrefix}: unlabeled`);
+            warnings.push("At least one text input has no accessible label.");
+        }
+    }
+
+    if (inputs.length === 0) {
+        inputLines.push("No text inputs found.");
+    }
+
     const buttonRegex = /<button([^>]*)>([\s\S]*?)<\/button>/gi;
     let buttonMatch = buttonRegex.exec(code);
 
@@ -334,9 +387,9 @@ function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinit
         buttonMatch = buttonRegex.exec(code);
     }
 
-    const liveRegex = /<([a-z0-9-]+)([^>]*\saria-live\s*=\s*(["'])(.*?)\3[^>]*)>([\s\S]*?)<\/\1>/i;
-    const liveMatch = liveRegex.exec(code);
-    const liveText = liveMatch ? stripTags(liveMatch[5]) : "No live region found.";
+    const liveMatch = doc.querySelector("[aria-live]");
+    const statusRegion = doc.querySelector(".status") ?? liveMatch;
+    const liveText = statusRegion ? stripTags(statusRegion.textContent || "") : "No status region found.";
 
     if (!liveMatch) {
         warnings.push("No aria-live region found for status updates.");
@@ -344,9 +397,10 @@ function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinit
 
     return {
         headingLines,
+        inputLines,
         buttonLines,
         liveText,
-        warnings,
+        warnings: [],
         introTitle: challenge.previewTitle,
         introDescription: challenge.previewDescription,
     };
@@ -483,15 +537,6 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                     <FiInfo className="h-5 w-5" />
                 </IconButton>
             </div>
-            <div className="challenge-runner__content" style={{ marginTop: "-8px", marginBottom: "8px" }}>
-                <div className="challenge-runner__hint-item">
-                    Resolved: {resolvedCount}/{challenge.errors.length} issues
-                </div>
-                <div className="challenge-runner__hint-item" style={{ marginTop: "8px" }}>
-                    Hints used: {hintsUsed}
-                </div>
-            </div>
-
             <div className="challenge-runner__grid">
                 <section className="challenge-runner__section">
                     <div className="challenge-runner__section-header">
@@ -528,6 +573,9 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                             <div className="challenge-runner__simulated-output" aria-live="polite">
                                 <div className="challenge-runner__simulated-title">Simulated Screen Reader Output</div>
                                 {screenReaderSimulation.headingLines.map((line) => (
+                                    <div key={line} className="challenge-runner__simulated-line">{line}</div>
+                                ))}
+                                {screenReaderSimulation.inputLines.map((line) => (
                                     <div key={line} className="challenge-runner__simulated-line">{line}</div>
                                 ))}
                                 {screenReaderSimulation.buttonLines.map((line) => (
