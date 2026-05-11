@@ -2,6 +2,11 @@ import type { Course, Question, Quiz } from "./structures";
 
 export type ChallengeType = "keyboard-navigation" | "screen-reader" | "contrast";
 
+export type Resource = {
+  label: string;
+  href: string;
+};
+
 export type ChallengeDefinition = {
   id: number;
   slug: string;
@@ -15,6 +20,7 @@ export type ChallengeDefinition = {
   errors: string[];
   hints: string[];
   validation?: string;
+  resources: Resource[];
 };
 
 const HTML_BOILERPLATE = (title: string, style: string, body: string) => `<!doctype html>
@@ -50,6 +56,7 @@ const createChallenge = (
     errors: string[];
     hints: string[];
     validation?: string;
+    resources: Resource[];
   }
 ): ChallengeDefinition => ({
   id,
@@ -119,9 +126,9 @@ export const challenges: ChallengeDefinition[] = [
         "The button contrast is below AA.",
       ],
       hints: [
-        "Make the title easier to read by increasing contrast in the .sample-title rule.",
-        "Make the body copy darker or the background lighter via the body or .sample-body rule.",
-        "Tune the button fill/text colors in .sample-button until the label meets the ratio.",
+        "The tile should be darker to meet the necessary ratio (3:1). Try using the color picker or adjust .sample-title",
+        "The body text should be darker to meet the necessary ratio (4.5:1). Try using the color picker or adjust .sample-body",
+        "The button text should have higher contrast against the background. Use the color picker to adjust either the background or text color. Alternatively, adjust .sample-button colors directly.",
       ],
       validation: `function luminance(r,g,b){
   const a=[r,g,b].map(v=>{
@@ -134,6 +141,20 @@ function contrastRatio(fgRGB, bgRGB){
   const L2 = luminance(...bgRGB);
   return (Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05);
 }`,
+      resources: [
+        {
+          label: "W3C WCAG 2.1 Contrast (Minimum) - Level AA",
+          href: "https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html",
+        },
+        {
+          label: "WebAIM Contrast Checker",
+          href: "https://webaim.org/resources/contrastchecker/",
+        },
+        {
+          label: "Color Contrast Accessibility Validator",
+          href: "https://www.tpgi.com/color-contrast-checker/",
+        },
+      ],
     }
   ),
   createChallenge(
@@ -172,10 +193,9 @@ function contrastRatio(fgRGB, bgRGB){
         <p>Fill out the form below.</p>
 
         <form>
-          <label for="name">Full name</label>
           <input id="name" type="text" placeholder="Full name" />
 
-          <input id="nickname" type="text" placeholder="Nickname" aria-label="Nickname" />
+          <input id="nickname" type="text" placeholder="Nickname" />
 
           <input id="email" type="email" placeholder="Email" />
 
@@ -188,13 +208,13 @@ function contrastRatio(fgRGB, bgRGB){
       previewTitle: "Form Labeling",
       previewDescription: "A small form demonstrates proper and improper labeling patterns. Fix unlabeled inputs, give the button a clear name, and make the status region announce updates.",
       errors: [
-        "Inputs lack associated <label> elements.",
-        "The main action button has a vague accessible name.",
-        "The status text is not announced because aria-live is missing.",
+        "Inputs lack associated <label> elements or aria-label attributes.",
+        "The main action button uses vague language.",
+        "Changes in status are not announced.",
       ],
       hints: [
-        "Add <label for=\"id\"> text and matching id attributes.",
-        "Use a specific button name instead of 'Click here' (e.g., 'Send message').",
+        "For each input, provide a corresponding <label for=\"id\"> or aria-label=\"label text\".",
+        "Use a specific button name instead of 'Click here' (e.g., 'Submit').",
         "Add aria-live to the status region or use role=\"status\"/\"alert\" for announcements.",
       ],
       validation: `const inputs = document.querySelectorAll('input');
@@ -206,6 +226,20 @@ function contrastRatio(fgRGB, bgRGB){
     );
     return hasLabel;
   })`,
+      resources: [
+        {
+          label: "W3C WAI Form Labeling Techniques",
+          href: "https://www.w3.org/WAI/tutorials/forms/labels/",
+        },
+        {
+          label: "MDN ARIA: label role",
+          href: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/label_role",
+        },
+        {
+          label: "MDN ARIA Live Regions",
+          href: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions",
+        },
+      ],
     }
   ),
   createChallenge(
@@ -252,11 +286,11 @@ function contrastRatio(fgRGB, bgRGB){
       <p>Find and activate the target using Tab. The page contains focus-order and semantics problems.</p>
 
       <nav>
-        <button type="button" class="clickable">Home</button>
-        <button id="target" type="button" tabindex="-1" class="clickable">Go to Success</button>
+        <button type="button" class="clickable">Good Tab Order</button>
+        <button id="target" type="button" tabindex="-1" class="clickable">Negative tabindex</button>
       </nav>
 
-      <div class="clickable" role="button" onclick="alert('div clicked')">Fake Button (div)</div>
+      <div class="clickable" role="button" onclick="alert('div clicked')">Div Button</div>
 
       <button class="clickable" tabindex="2">Positive tabindex</button>
 
@@ -272,16 +306,30 @@ function contrastRatio(fgRGB, bgRGB){
       previewTitle: "Keyboard Navigation",
       previewDescription: "Focus order and focusable semantics are intentionally incorrect. Fix the order, remove positive tabindex values, stop trapping focus, and use proper interactive elements.",
       errors: [
-        "Target control has tabindex=\"-1\" and is skipped by Tab.",
-        "Non-interactive elements are used as controls (no keyboard support).",
+        "Button has tabindex=\"-1\" and is skipped by Tab.",
+        "Non-interactive elements are used for interactive purposes.",
         "Positive tabindex values disrupt natural focus order.",
         "An element traps keyboard focus and blocks normal Tab navigation.",
       ],
       hints: [
-        "Replace decorative divs with <button> or <a> when they perform actions.",
+        "Remove tabindex=\"-1\" from the button to make it focusable in natural order.",
+        "Replace decorative divs with <button> (same page effect) or <a> (redirect) when they perform actions.",
         "Remove positive tabindex values (e.g., tabindex=\"2\") to restore natural order.",
         "Remove any key handlers that prevent Tab from moving focus forward.",
-        "Ensure the DOM order matches logical/visual order so Tab works predictably.",
+      ],
+      resources: [
+        {
+          label: "W3C WCAG 2.1 Keyboard Accessible (Level A)",
+          href: "https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html",
+        },
+        {
+          label: "MDN Guide to Keyboard Navigation",
+          href: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Keyboard",
+        },
+        {
+          label: "W3C Focus Visible and Focus Order",
+          href: "https://www.w3.org/WAI/tutorials/keyboard/focus/",
+        },
       ],
     }
   ),

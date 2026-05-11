@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { basicSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { FiAlertTriangle, FiEye, FiInfo } from "react-icons/fi";
+import { FiAlertTriangle, FiEye, FiInfo, FiX } from "react-icons/fi";
 import type { ChallengeDefinition } from "@/consts/challenges";
-import { Button, IconButton, Text } from "@chakra-ui/react";
+import { Box, Button, IconButton, Text } from "@chakra-ui/react";
 import { LuCodeXml } from "react-icons/lu";
 import {
     getPreviewDoc,
@@ -18,6 +18,7 @@ import {
     setContrastColorTargetValue,
     type ContrastColorTargetKey,
 } from "@/lib/challenge-utils";
+import { markChallengeCompleted } from "@/lib/progress";
 import "./challenge-runner.css";
 
 type ChallengeRunnerProps = {
@@ -78,6 +79,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
     const [code, setCode] = useState(challenge.starterCode);
     const [revealedHints, setRevealedHints] = useState<Set<number>>(new Set());
     const [isMounted, setIsMounted] = useState(false);
+    const [isInfoOpen, setIsInfoOpen] = useState(false);
     const [selectedContrastTarget, setSelectedContrastTarget] = useState<ContrastColorTargetKey>("title");
 
     useEffect(() => {
@@ -170,32 +172,50 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
     }, [challenge, code]);
 
     useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            const data = event.data as { type?: string; slug?: string } | null;
+        if (!isInfoOpen) {
+            return undefined;
+        }
 
-            if (!data || data.type !== "challenge-target-triggered") {
-                return;
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setIsInfoOpen(false);
             }
-
-            if (data.slug !== challenge.slug) {
-                return;
-            }
-
-            router.push("/app/success");
         };
 
-        window.addEventListener("message", handleMessage);
-        return () => window.removeEventListener("message", handleMessage);
-    }, [challenge.slug, router]);
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isInfoOpen]);
+
+    const handleContinueToSuccess = () => {
+        const resolved = resolvedIssues.filter(Boolean).length;
+        markChallengeCompleted(challenge.slug, resolved, challenge.errors.length);
+        router.push(`/app/success?slug=${encodeURIComponent(challenge.slug)}`);
+    };
 
     if (!isMounted) {
         return (
             <div className="challenge-runner">
                 <div className="challenge-runner__header">
                     <Text as="h1" fontSize="2xl">Challenge {challenge.id}: {challenge.title}</Text>
-                    <IconButton aria-label="Challenge information" rounded="full" background="transparent">
-                        <FiInfo className="h-5 w-5" />
-                    </IconButton>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        <Button
+                            onClick={handleContinueToSuccess}
+                            variant="solid"
+                            rounded="full"
+                            background="var(--color-purple-600)"
+                            _hover={{ background: "var(--color-purple-700)" }}
+                        >
+                            Continue to Success
+                        </Button>
+                        <IconButton
+                            aria-label="Challenge information"
+                            rounded="full"
+                            background="transparent"
+                            onClick={() => setIsInfoOpen(true)}
+                        >
+                            <FiInfo className="h-5 w-5" />
+                        </IconButton>
+                    </div>
                 </div>
                 <div className="challenge-runner__content">
                     <Text color="var(--color-lavender-300)">Loading challenge preview...</Text>
@@ -240,9 +260,25 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
         <div className="challenge-runner">
             <div className="challenge-runner__header">
                 <Text as="h1" fontSize="2xl">Challenge {challenge.id}: {challenge.title}</Text>
-                <IconButton aria-label="Challenge information" rounded="full" background="transparent">
-                    <FiInfo className="h-5 w-5" />
-                </IconButton>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <Button
+                        onClick={handleContinueToSuccess}
+                        variant="solid"
+                        rounded="full"
+                        background="var(--color-purple-600)"
+                        _hover={{ background: "var(--color-purple-700)" }}
+                    >
+                        End Challenge
+                    </Button>
+                    <IconButton
+                        aria-label="Challenge information"
+                        rounded="full"
+                        background="transparent"
+                        onClick={() => setIsInfoOpen(true)}
+                    >
+                        <FiInfo className="h-5 w-5" />
+                    </IconButton>
+                </div>
             </div>
             <div className="challenge-runner__grid">
                 <section className="challenge-runner__section">
@@ -274,7 +310,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                                             Pick a target, then adjust the hex value live in the editor.
                                         </div>
                                     </div>
-                                
+
                                 </div>
 
                                 <div className="challenge-runner__contrast-targets">
@@ -406,6 +442,63 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                     </div>
                 </section>
             </div>
+
+            {isInfoOpen ? (
+                <div className="challenge-runner__overlay" role="presentation" onClick={() => setIsInfoOpen(false)}>
+                    <div
+                        className="challenge-runner__dialog"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="challenge-info-title"
+                        aria-describedby="challenge-info-description"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        
+                        <div className="challenge-runner__dialog-header">
+                            <div>
+                                <Text id="challenge-info-title" as="h2" fontSize="xl" fontWeight="semibold">
+                                    Challenge {challenge.id}: {challenge.title}
+                                </Text>
+                            </div>
+                            <IconButton
+                            aria-label="Close challenge details"
+                            rounded="full"
+                            background="transparent"
+                            onClick={() => setIsInfoOpen(false)}
+                        >
+                            <FiX className="h-5 w-5" />
+                        </IconButton>
+                        </div>
+
+                        <div className="challenge-runner__dialog-body">
+                             <Text id="challenge-info-description">
+                                    {challenge.objective}
+                                </Text>
+
+                            {challenge.resources && challenge.resources.length > 0 && (
+                                <Box>
+                                    <Text fontSize="sm" textTransform="uppercase" letterSpacing="0.08em" color="var(--color-lavender-200)" mb={3}>
+                                        Resources
+                                    </Text>
+                                    <div style={{ display: "grid", gap: "8px" }}>
+                                        {challenge.resources.map((resource) => (
+                                            <a
+                                                key={resource.href}
+                                                href={resource.href}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="challenge-runner__resource-link"
+                                            >
+                                                {resource.label}
+                                            </a>
+                                        ))}
+                                    </div>
+                                </Box>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }
