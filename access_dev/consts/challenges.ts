@@ -17,7 +17,6 @@ export type ChallengeDefinition = {
   validation?: string;
 };
 
-// Starter code templates
 const HTML_BOILERPLATE = (title: string, style: string, body: string) => `<!doctype html>
 <html lang="en">
   <head>
@@ -37,7 +36,6 @@ ${body}
   </body>
 </html>`;
 
-// Factory function for cleaner challenge creation
 const createChallenge = (
   id: number,
   slug: string,
@@ -66,78 +64,76 @@ const createChallenge = (
 export const challenges: ChallengeDefinition[] = [
   createChallenge(
     1,
-    "keyboard-navigation",
-    "Keyboard Navigation",
-    "Keyboard accessibility (tab order, focusable controls)",
-    "keyboard-navigation",
-    "Make the target link reachable with exactly two Tab presses from the start of the page and ensure it is a proper interactive element.",
+    "contrast",
+    "Color Contrast",
+    "Fix low contrast so text and controls meet WCAG thresholds",
+    "contrast",
+    "Adjust colors so normal text meets a 4.5:1 contrast ratio (or 3:1 for large text).",
     {
       starterCode: HTML_BOILERPLATE(
-        "Button Demo",
+        "Contrast Demo",
         `
       body {
         margin: 0;
         min-height: 100vh;
         display: grid;
         place-items: center;
-        background: #ece5f8;
-        color: #17101f;
+        background: #f4eafe;
+        color: #a28ab9;
       }
 
-      .container {
+      .card {
         display: grid;
-        gap: 12px;
-        justify-items: center;
+        gap: 16px;
+        padding: 32px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.6);
       }
 
-      .clickable {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 20px;
-        border-radius: 12px;
+      .sample-title {
+        color: #b49fcb;
+      }
+
+      .sample-body {
+        color: #b59ccb;
+      }
+
+      .sample-button {
         border: 0;
-        background: #8b5cf6;
-        color: white;
-        font: inherit;
-      }
-      nav a { margin-right: 12px }`,
-        `    <main class="container">
-      <h2>Keyboard Navigation</h2>
-      <p>Find and activate the target using Tab. The page contains focus-order and semantics problems.</p>
-
-      <nav>
-        <button type="button" class="clickable">Home</button>
-        <button id="target" type="button" class="clickable">Go to Success</button>
-      </nav>
-
-      <div class="clickable" role="button" onclick="alert('div clicked')">Fake Button (div)</div>
-
-      <button class="clickable" tabindex="2">Positive tabindex</button>
-
-      <button
-        id="trap"
-        class="clickable"
-        onkeydown="if (event.key === 'Tab') { event.preventDefault(); this.focus(); }"
-      >
-        Keyboard Trap Button
-      </button>
-    </main>`
+        padding: 12px 18px;
+        border-radius: 999px;
+        background: #cfb5fb;
+        color: #fbf8ff;
+      }`,
+        `    <section class="card">
+      <h1 id="sample-title" class="sample-title">Contrast Demo</h1>
+      <p id="sample-body" class="sample-body">Improve the contrast to make this easier to read.</p>
+      <button id="sample-button" class="sample-button" type="button">Continue</button>
+    </section>`
       ),
-      previewTitle: "Keyboard Navigation",
-      previewDescription: "Focus order and focusable semantics are intentionally incorrect. Fix the order, remove positive tabindex values, stop trapping focus, and use proper interactive elements.",
+      previewTitle: "Contrast Demo",
+      previewDescription: "A focused contrast exercise with three targets: title, body text, and button. Use the ratio bar to adjust colors in the <style> block.",
       errors: [
-        "Target control has tabindex=\"-1\" and is skipped by Tab.",
-        "Non-interactive elements are used as controls (no keyboard support).",
-        "Positive tabindex values disrupt natural focus order.",
-        "An element traps keyboard focus and blocks normal Tab navigation.",
+        "The title contrast is below AA.",
+        "The body text contrast is below AA.",
+        "The button contrast is below AA.",
       ],
       hints: [
-        "Replace decorative divs with <button> or <a> when they perform actions.",
-        "Remove positive tabindex values (e.g., tabindex=\"2\") to restore natural order.",
-        "Remove any key handlers that prevent Tab from moving focus forward.",
-        "Ensure the DOM order matches logical/visual order so Tab works predictably.",
+        "Make the title easier to read by increasing contrast in the .sample-title rule.",
+        "Make the body copy darker or the background lighter via the body or .sample-body rule.",
+        "Tune the button fill/text colors in .sample-button until the label meets the ratio.",
       ],
+      validation: `function luminance(r,g,b){
+  const a=[r,g,b].map(v=>{
+    v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4);
+  });
+  return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
+}
+function contrastRatio(fgRGB, bgRGB){
+  const L1 = luminance(...fgRGB);
+  const L2 = luminance(...bgRGB);
+  return (Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05);
+}`,
     }
   ),
   createChallenge(
@@ -214,78 +210,82 @@ export const challenges: ChallengeDefinition[] = [
   ),
   createChallenge(
     3,
-    "contrast",
-    "Color Contrast",
-    "Fix low contrast so text and controls meet WCAG thresholds",
-    "contrast",
-    "Adjust colors so normal text meets a 4.5:1 contrast ratio (or 3:1 for large text).",
+    "keyboard-navigation",
+    "Keyboard Navigation",
+    "Keyboard accessibility (tab order, focusable controls)",
+    "keyboard-navigation",
+    "Make the target link reachable with exactly two Tab presses from the start of the page and ensure it is a proper interactive element.",
     {
       starterCode: HTML_BOILERPLATE(
-        "Contrast Demo",
+        "Button Demo",
         `
       body {
         margin: 0;
         min-height: 100vh;
         display: grid;
         place-items: center;
-        background: #f4eafe;
-        color: #a28ab9;
+        background: #ece5f8;
+        color: #17101f;
       }
 
-      .card {
+      .container {
         display: grid;
-        gap: 16px;
-        padding: 32px;
-        border-radius: 24px;
-        background: rgba(255, 255, 255, 0.6);
+        gap: 12px;
+        justify-items: center;
+        padding: 16px;
       }
 
-      .sample-title {
-        color: #b49fcb;
-      }
-
-      .sample-body {
-        color: #b59ccb;
-      }
-
-      .sample-button {
+      .clickable {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 20px;
+        border-radius: 12px;
         border: 0;
-        padding: 12px 18px;
-        border-radius: 999px;
-        background: #cfb5fb;
-        color: #fbf8ff;
-      }`,
-        `    <section class="card">
-      <h1 id="sample-title" class="sample-title">Contrast Demo</h1>
-      <p id="sample-body" class="sample-body">Improve the contrast to make this easier to read.</p>
-      <button id="sample-button" class="sample-button" type="button">Continue</button>
-    </section>`
+        background: #8b5cf6;
+        color: white;
+        font: inherit;
+      }
+      nav a { margin-right: 12px }`,
+        `    <main class="container">
+      <h2>Keyboard Navigation</h2>
+      <p>Find and activate the target using Tab. The page contains focus-order and semantics problems.</p>
+
+      <nav>
+        <button type="button" class="clickable">Home</button>
+        <button id="target" type="button" tabindex="-1" class="clickable">Go to Success</button>
+      </nav>
+
+      <div class="clickable" role="button" onclick="alert('div clicked')">Fake Button (div)</div>
+
+      <button class="clickable" tabindex="2">Positive tabindex</button>
+
+      <button
+        id="trap"
+        class="clickable"
+        onkeydown="if (event.key === 'Tab') { event.preventDefault(); this.focus(); }"
+      >
+        Keyboard Trap Button
+      </button>
+    </main>`
       ),
-      previewTitle: "Contrast Demo",
-      previewDescription: "A focused contrast exercise with three targets: title, body text, and button. Use the ratio bar to adjust colors in the <style> block.",
+      previewTitle: "Keyboard Navigation",
+      previewDescription: "Focus order and focusable semantics are intentionally incorrect. Fix the order, remove positive tabindex values, stop trapping focus, and use proper interactive elements.",
       errors: [
-        "The title contrast is below AA.",
-        "The body text contrast is below AA.",
-        "The button contrast is below AA.",
+        "Target control has tabindex=\"-1\" and is skipped by Tab.",
+        "Non-interactive elements are used as controls (no keyboard support).",
+        "Positive tabindex values disrupt natural focus order.",
+        "An element traps keyboard focus and blocks normal Tab navigation.",
       ],
       hints: [
-        "Make the title easier to read by increasing contrast in the .sample-title rule.",
-        "Make the body copy darker or the background lighter via the body or .sample-body rule.",
-        "Tune the button fill/text colors in .sample-button until the label meets the ratio.",
+        "Replace decorative divs with <button> or <a> when they perform actions.",
+        "Remove positive tabindex values (e.g., tabindex=\"2\") to restore natural order.",
+        "Remove any key handlers that prevent Tab from moving focus forward.",
+        "Ensure the DOM order matches logical/visual order so Tab works predictably.",
       ],
-      validation: `function luminance(r,g,b){
-  const a=[r,g,b].map(v=>{
-    v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4);
-  });
-  return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
-}
-function contrastRatio(fgRGB, bgRGB){
-  const L1 = luminance(...fgRGB);
-  const L2 = luminance(...bgRGB);
-  return (Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05);
-}`,
     }
   ),
+
 ];
 
 export function getChallengeBySlug(slug: string) {
@@ -296,11 +296,6 @@ export function getChallengeStarterCode(slug: string) {
   return getChallengeBySlug(slug)?.starterCode ?? "<!doctype html><html><body></body></html>";
 }
 
-// -------------------------
-// Course definition
-// -------------------------
-
-// Reusable question used across multiple quizzes
 const ALT_TEXT_QUESTION: Question = {
   id: "q1",
   text: "What is the purpose of alt text for images?",
@@ -326,14 +321,15 @@ const createQuiz = (id: string, title: string, subtitle: string, questions: Ques
 export const course: Course = {
   steps: [
     createQuiz("quiz-1", "Introductory Quiz", "Test your knowledge on accessibility basics", [ALT_TEXT_QUESTION]),
+   
     {
       id: "challenge-1",
-      title: "Keyboard Navigation Challenge",
-      subtitle: "Make a simple webpage navigable using only the keyboard",
-      description: "Create a webpage with a header, a main content area, and a footer. Ensure that all interactive elements can be accessed and used with keyboard navigation.",
+      title: "Contrast Challenge",
+      subtitle: "Ensure your webpage has sufficient color contrast",
+      description: "Create a webpage with a header, a main content area, and a footer. Ensure that all text has sufficient contrast against its background.",
       starterCode: "",
       solutionCode: "",
-      link: ["/app/challenges/keyboard-navigation"]
+      link: ["/app/challenges/contrast"]
     },
     createQuiz("quiz-2", "Quiz 2", "Reflect on keyboard navigation and screen reader basics", [ALT_TEXT_QUESTION]),
     {
@@ -346,15 +342,15 @@ export const course: Course = {
       link: ["/app/challenges/screen-reader"]
     },
     createQuiz("quiz-3", "Quiz 3", "Reflect on screen reader accessibility and contrast basics", [ALT_TEXT_QUESTION]),
-    {
+     {
       id: "challenge-3",
-      title: "Contrast Challenge",
-      subtitle: "Ensure your webpage has sufficient color contrast",
-      description: "Create a webpage with a header, a main content area, and a footer. Ensure that all text has sufficient contrast against its background.",
+      title: "Keyboard Navigation Challenge",
+      subtitle: "Make a simple webpage navigable using only the keyboard",
+      description: "Create a webpage with a header, a main content area, and a footer. Ensure that all interactive elements can be accessed and used with keyboard navigation.",
       starterCode: "",
       solutionCode: "",
-      link: ["/app/challenges/contrast"]
-    }
+      link: ["/app/challenges/keyboard-navigation"]
+    },
   ]
 };
 
