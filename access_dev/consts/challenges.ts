@@ -13,10 +13,9 @@ export type ChallengeDefinition = {
   title: string;
   subtitle: string;
   type: ChallengeType;
+  description: string;
   objective: string;
   starterCode: string;
-  previewTitle: string;
-  previewDescription: string;
   errors: string[];
   hints: string[];
   validation?: string;
@@ -48,11 +47,10 @@ const createChallenge = (
   title: string,
   subtitle: string,
   type: ChallengeType,
+  description: string,
   objective: string,
   config: {
     starterCode: string;
-    previewTitle: string;
-    previewDescription: string;
     errors: string[];
     hints: string[];
     validation?: string;
@@ -64,6 +62,7 @@ const createChallenge = (
   title,
   subtitle,
   type,
+  description,
   objective,
   ...config,
 });
@@ -73,9 +72,10 @@ export const challenges: ChallengeDefinition[] = [
     1,
     "contrast",
     "Color Contrast",
-    "Fix low contrast so text and controls meet WCAG thresholds",
+    "Color Contrast Ratio Requirements",
     "contrast",
-    "Adjust colors so normal text meets a 4.5:1 contrast ratio (or 3:1 for large text).",
+    "For this challenge, you are given a simple webpage with a title, body tex and a button, seeing through the eyes of a person with low vision. The colors used do not meet accessibility contrast requirements, making it difficult for some users to read the content. Your task is to adjust the colors of the title, body text and button to ensure they meet the necessary contrast ratios for accessibility.",
+    "Adjust colors of the title, body text, and button to meet contrast requirements.",
     {
       starterCode: HTML_BOILERPLATE(
         "Contrast Demo",
@@ -118,8 +118,6 @@ export const challenges: ChallengeDefinition[] = [
       <button id="sample-button" class="sample-button" type="button">Continue</button>
     </section>`
       ),
-      previewTitle: "Contrast Demo",
-      previewDescription: "A focused contrast exercise with three targets: title, body text, and button. Use the ratio bar to adjust colors in the <style> block.",
       errors: [
         "The title contrast is below AA.",
         "The body text contrast is below AA.",
@@ -160,10 +158,11 @@ function contrastRatio(fgRGB, bgRGB){
   createChallenge(
     2,
     "screen-reader",
-    "Form Labels",
-    "Form labeling and accessible names for inputs",
+    "Screen Reader",
+    "Adjust form labels and states for proper screen reader output",
     "screen-reader",
-    "Ensure each form field has a proper accessible name via a <label> or aria attributes so screen readers announce them correctly.",
+    "For this challenge, you are given a simple contact form with three input fields and a submit button. You will see this through the output a screen reader would offer. The form is not properly labeled, the button text is vague, and status updates are not announced to screen reader users. Your task is to adjust the form markup, button text, and status region to ensure that screen reader users can understand and interact with the form effectively.",
+    "Adjust form markup, button text and status region to ensure usablility for screen reader users. ",
     {
       starterCode: HTML_BOILERPLATE(
         "Announcement Demo",
@@ -205,8 +204,6 @@ function contrastRatio(fgRGB, bgRGB){
         <div class="status">Waiting for action...</div>
       </main>`
       ),
-      previewTitle: "Form Labeling",
-      previewDescription: "A small form demonstrates proper and improper labeling patterns. Fix unlabeled inputs, give the button a clear name, and make the status region announce updates.",
       errors: [
         "Inputs lack associated <label> elements or aria-label attributes.",
         "The main action button uses vague language.",
@@ -248,7 +245,8 @@ function contrastRatio(fgRGB, bgRGB){
     "Keyboard Navigation",
     "Keyboard accessibility (tab order, focusable controls)",
     "keyboard-navigation",
-    "Make the target link reachable with exactly two Tab presses from the start of the page and ensure it is a proper interactive element.",
+    "For this exercise, you can only interact with the website preview by using keyboard navigation. All but one button show issues dirsupting the tab order or focusability.",
+    "Make all interactive elements focusable and ensure a logical tab order. Remove any keyboard traps and use semantically correct elements for interactive controls.",
     {
       starterCode: HTML_BOILERPLATE(
         "Button Demo",
@@ -303,8 +301,6 @@ function contrastRatio(fgRGB, bgRGB){
       </button>
     </main>`
       ),
-      previewTitle: "Keyboard Navigation",
-      previewDescription: "Focus order and focusable semantics are intentionally incorrect. Fix the order, remove positive tabindex values, stop trapping focus, and use proper interactive elements.",
       errors: [
         "Button has tabindex=\"-1\" and is skipped by Tab.",
         "Non-interactive elements are used for interactive purposes.",
@@ -367,38 +363,55 @@ const createQuiz = (id: string, title: string, subtitle: string, questions: Ques
 });
 
 export const course: Course = {
-  steps: [
-    createQuiz("quiz-1", "Introductory Quiz", "Test your knowledge on accessibility basics", [ALT_TEXT_QUESTION]),
-   
-    {
-      id: "challenge-1",
-      title: "Contrast Challenge",
-      subtitle: "Ensure your webpage has sufficient color contrast",
-      description: "Create a webpage with a header, a main content area, and a footer. Ensure that all text has sufficient contrast against its background.",
-      starterCode: "",
-      solutionCode: "",
-      link: ["/app/challenges/contrast"]
-    },
-    createQuiz("quiz-2", "Quiz 2", "Reflect on keyboard navigation and screen reader basics", [ALT_TEXT_QUESTION]),
-    {
-      id: "challenge-2",
-      title: "Screen Reader Challenge",
-      subtitle: "Make sure your website gives usable screen reader output",
-      description: "Create a webpage with a header, a main content area, and a footer. Ensure that all interactive elements can be accessed and used with keyboard navigation.",
-      starterCode: "",
-      solutionCode: "",
-      link: ["/app/challenges/screen-reader"]
-    },
-    createQuiz("quiz-3", "Quiz 3", "Reflect on screen reader accessibility and contrast basics", [ALT_TEXT_QUESTION]),
-     {
-      id: "challenge-3",
-      title: "Keyboard Navigation Challenge",
-      subtitle: "Make a simple webpage navigable using only the keyboard",
-      description: "Create a webpage with a header, a main content area, and a footer. Ensure that all interactive elements can be accessed and used with keyboard navigation.",
-      starterCode: "",
-      solutionCode: "",
-      link: ["/app/challenges/keyboard-navigation"]
-    },
-  ]
+  steps: getCourseSteps(),
 };
+
+export function getCourseSteps(): Course["steps"] {
+  return [
+    createQuiz("quiz-1", "Introductory Quiz", "Test your knowledge on accessibility basics", [ALT_TEXT_QUESTION]),
+
+    (function() {
+      const ch = getChallengeBySlug("contrast");
+      return {
+        id: "challenge-1",
+        title: ch?.title ?? "Contrast Challenge",
+        subtitle: ch?.subtitle ?? "Ensure your webpage has sufficient color contrast",
+        description: ch?.description ?? "",
+        starterCode: ch?.starterCode ?? "",
+        solutionCode: "",
+        link: [`/app/challenges/${ch?.slug ?? "contrast"}`],
+      };
+    })(),
+
+    createQuiz("quiz-2", "Quiz 2", "Reflect on keyboard navigation and screen reader basics", [ALT_TEXT_QUESTION]),
+
+    (function() {
+      const ch = getChallengeBySlug("screen-reader");
+      return {
+        id: "challenge-2",
+        title: ch?.title ?? "Screen Reader Challenge",
+        subtitle: ch?.subtitle ?? "Make sure your website gives usable screen reader output",
+        description: ch?.description ?? "",
+        starterCode: ch?.starterCode ?? "",
+        solutionCode: "",
+        link: [`/app/challenges/${ch?.slug ?? "screen-reader"}`],
+      };
+    })(),
+
+    createQuiz("quiz-3", "Quiz 3", "Reflect on screen reader accessibility and contrast basics", [ALT_TEXT_QUESTION]),
+
+    (function() {
+      const ch = getChallengeBySlug("keyboard-navigation");
+      return {
+        id: "challenge-3",
+        title: ch?.title ?? "Keyboard Navigation Challenge",
+        subtitle: ch?.subtitle ?? "Make a simple webpage navigable using only the keyboard",
+        description: ch?.description ?? "",
+        starterCode: ch?.starterCode ?? "",
+        solutionCode: "",
+        link: [`/app/challenges/${ch?.slug ?? "keyboard-navigation"}`],
+      };
+    })(),
+  ];
+}
 
