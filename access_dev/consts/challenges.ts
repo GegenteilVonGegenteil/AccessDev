@@ -148,10 +148,6 @@ function contrastRatio(fgRGB, bgRGB){
           label: "WebAIM Contrast Checker",
           href: "https://webaim.org/resources/contrastchecker/",
         },
-        {
-          label: "Color Contrast Accessibility Validator",
-          href: "https://www.tpgi.com/color-contrast-checker/",
-        },
       ],
     }
   ),
@@ -229,8 +225,8 @@ function contrastRatio(fgRGB, bgRGB){
           href: "https://www.w3.org/WAI/tutorials/forms/labels/",
         },
         {
-          label: "MDN ARIA: label role",
-          href: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/label_role",
+          label: "MDN Label Element",
+          href: "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label",
         },
         {
           label: "MDN ARIA Live Regions",
@@ -315,16 +311,16 @@ function contrastRatio(fgRGB, bgRGB){
       ],
       resources: [
         {
-          label: "W3C WCAG 2.1 Keyboard Accessible (Level A)",
-          href: "https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html",
-        },
-        {
           label: "MDN Guide to Keyboard Navigation",
           href: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Keyboard",
         },
         {
-          label: "W3C Focus Visible and Focus Order",
-          href: "https://www.w3.org/WAI/tutorials/keyboard/focus/",
+          label: "W3C WCAG 2.1.1 Keyboard Accessible (Level AA)",
+          href: "https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html",
+        },
+        {
+          label: "WCAG Focus Order",
+          href: "https://wcag.dock.codes/documentation/wcag243/",
         },
       ],
     }

@@ -197,25 +197,6 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
             <div className="challenge-runner">
                 <div className="challenge-runner__header">
                     <Text as="h1" fontSize="2xl">Challenge {challenge.id}: {challenge.title}</Text>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                        <Button
-                            onClick={handleContinueToSuccess}
-                            variant="solid"
-                            rounded="full"
-                            background="var(--color-purple-600)"
-                            _hover={{ background: "var(--color-purple-700)" }}
-                        >
-                            Continue to Success
-                        </Button>
-                        <IconButton
-                            aria-label="Challenge information"
-                            rounded="full"
-                            background="transparent"
-                            onClick={() => setIsInfoOpen(true)}
-                        >
-                            <FiInfo className="h-5 w-5" />
-                        </IconButton>
-                    </div>
                 </div>
                 <div className="challenge-runner__content">
                     <Text color="var(--color-lavender-300)">Loading challenge preview...</Text>
@@ -264,7 +245,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                     <Button
                         onClick={handleContinueToSuccess}
                         variant="solid"
-                        rounded="full"
+                        rounded="sm"
                         background="var(--color-purple-600)"
                         _hover={{ background: "var(--color-purple-700)" }}
                     >
@@ -291,7 +272,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                             type="button"
                             onClick={handleReset}
                             variant="outline"
-                            rounded="full"
+                            rounded="md"
                             borderColor="var(--color-lavender-300)"
                             color="var(--color-lavender-300)"
                             _hover={{ bg: "var(--color-lavender-950)" }}
