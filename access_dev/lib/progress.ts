@@ -9,6 +9,7 @@ export type ChallengeCompletion = {
   slug: string;
   resolvedCount: number;
   totalCount: number;
+  hintsUsed: number;
   completedAt: number;
 };
 
@@ -73,7 +74,8 @@ export function saveChallengesProgress(progress: ChallengesProgress): void {
 export function markChallengeCompleted(
   slug: string,
   resolvedCount: number,
-  totalCount: number
+  totalCount: number,
+  hintsUsed: number = 0
 ): ChallengesProgress {
   const current = getChallengesProgress();
   const next: ChallengesProgress = {
@@ -83,6 +85,7 @@ export function markChallengeCompleted(
         slug,
         resolvedCount,
         totalCount,
+        hintsUsed,
         completedAt: Date.now(),
       },
     },
