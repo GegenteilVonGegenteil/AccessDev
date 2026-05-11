@@ -74,7 +74,7 @@ export const challenges: ChallengeDefinition[] = [
     "Color Contrast",
     "Color Contrast Ratio Requirements",
     "contrast",
-    "For this challenge, you are given a simple webpage with a title, body tex and a button, seeing through the eyes of a person with low vision. The colors used do not meet accessibility contrast requirements, making it difficult for some users to read the content. Your task is to adjust the colors of the title, body text and button to ensure they meet the necessary contrast ratios for accessibility.",
+    "For this challenge, you are given a simple webpage with a title, body text and a button, seeing through the eyes of a person with low vision. The colors used do not meet accessibility contrast requirements, making it difficult for some users to read the content. Your task is to adjust the colors of the title, body text and button to ensure they meet the necessary contrast ratios for accessibility.",
     "Adjust colors of the title, body text, and button to meet contrast requirements.",
     {
       starterCode: HTML_BOILERPLATE(
@@ -279,11 +279,9 @@ function contrastRatio(fgRGB, bgRGB){
       <h2>Keyboard Navigation</h2>
       <p>Find and activate the target using Tab. The page contains focus-order and semantics problems.</p>
 
-      <nav>
-        <button type="button" class="clickable">Good Tab Order</button>
-        <button id="target" type="button" tabindex="-1" class="clickable">Negative tabindex</button>
-      </nav>
-
+      <button type="button" class="clickable">Natural Tab Order</button>
+      <button id="target" type="button" tabindex="-1" class="clickable">Negative tabindex</button>
+    
       <div class="clickable" role="button" onclick="alert('div clicked')">Div Button</div>
 
       <button class="clickable" tabindex="2">Positive tabindex</button>
@@ -366,7 +364,7 @@ export function getCourseSteps(): Course["steps"] {
   return [
     createQuiz("quiz-1", "Introductory Quiz", "Test your knowledge on accessibility basics", [ALT_TEXT_QUESTION]),
 
-    (function() {
+    (function () {
       const ch = getChallengeBySlug("contrast");
       return {
         id: "challenge-1",
@@ -375,13 +373,13 @@ export function getCourseSteps(): Course["steps"] {
         description: ch?.description ?? "",
         starterCode: ch?.starterCode ?? "",
         solutionCode: "",
-        link: [`/app/challenges/${ch?.slug ?? "contrast"}`],
+        link: [`/app/challenges/${ch?.slug ?? "contrast"}/preview`],
       };
     })(),
 
     createQuiz("quiz-2", "Quiz 2", "Reflect on keyboard navigation and screen reader basics", [ALT_TEXT_QUESTION]),
 
-    (function() {
+    (function () {
       const ch = getChallengeBySlug("screen-reader");
       return {
         id: "challenge-2",
@@ -390,13 +388,13 @@ export function getCourseSteps(): Course["steps"] {
         description: ch?.description ?? "",
         starterCode: ch?.starterCode ?? "",
         solutionCode: "",
-        link: [`/app/challenges/${ch?.slug ?? "screen-reader"}`],
+        link: [`/app/challenges/${ch?.slug ?? "screen-reader"}/preview`],
       };
     })(),
 
     createQuiz("quiz-3", "Quiz 3", "Reflect on screen reader accessibility and contrast basics", [ALT_TEXT_QUESTION]),
 
-    (function() {
+    (function () {
       const ch = getChallengeBySlug("keyboard-navigation");
       return {
         id: "challenge-3",
@@ -405,7 +403,7 @@ export function getCourseSteps(): Course["steps"] {
         description: ch?.description ?? "",
         starterCode: ch?.starterCode ?? "",
         solutionCode: "",
-        link: [`/app/challenges/${ch?.slug ?? "keyboard-navigation"}`],
+        link: [`/app/challenges/${ch?.slug ?? "keyboard-navigation"}/preview`],
       };
     })(),
   ];

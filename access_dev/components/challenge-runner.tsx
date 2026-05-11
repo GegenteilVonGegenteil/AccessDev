@@ -189,7 +189,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
     const handleContinueToSuccess = () => {
         const resolved = resolvedIssues.filter(Boolean).length;
         markChallengeCompleted(challenge.slug, resolved, challenge.errors.length);
-        router.push(`/app/success?slug=${encodeURIComponent(challenge.slug)}`);
+        router.push(`/app/challenges/${challenge.slug}/success`);
     };
 
     if (!isMounted) {
