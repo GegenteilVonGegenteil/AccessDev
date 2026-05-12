@@ -1,27 +1,26 @@
-type Option = {
+export type Option = {
     id: string;
     text: string;
-}
+};
 
-type Question = {
+export type Question = {
     id: string;
     text: string;
     options: Option[];
     correctOptionId: string;
-    furtherExplanation: string;
-    topic: string;
-    link: string[];
-}
+    explanation: string;
+};
 
-type Quiz = {
+export type Quiz = {
+    type: "quiz";
     id: string;
-    title: string;
-    subtitle: string;
+    name: string;
+    description: string;
     questions: Question[];
     link?: string[];
 };
 
-type Challenge = {
+export type Challenge = {
     id: string;
     title: string;
     subtitle: string;
@@ -29,10 +28,10 @@ type Challenge = {
     starterCode: string;
     solutionCode: string;
     link?: string[];
-}
+};
 
-type Course = {
-    steps: (Quiz | Challenge)[];
-}
+export type CourseStep = Quiz | Challenge;
 
-export type { Option, Question, Quiz, Challenge, Course };
+export type Course = {
+    steps: CourseStep[];
+};

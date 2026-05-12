@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import NextLink from "next/link";
 import { useParams } from "next/navigation";
 import { Box, Button, Link, Text } from "@chakra-ui/react";
-import { course, getChallengeBySlug } from "@/consts/challenges";
+import { getChallengeBySlug } from "@/consts/challenges";
+import { course } from "@/consts/course";
 import {
     getChallengesProgress,
     markStepCompleted,
@@ -140,18 +141,18 @@ export default function ChallengeSuccessPage() {
             </Box>
 
             <Box width="3xl" display="flex" justifyContent="end" gap={4}>
-                <NextLink href="/app" passHref>
-                    <Button as="a" variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }}>
+                <Link href="/app">
+                    <Button variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }}>
                         Go Home
                     </Button>
-                </NextLink>
+                </Link>
 
                 {nextHref ? (
-                    <NextLink href={nextHref} passHref>
-                        <Button as="a" variant="solid" color="var(--color-background)" bg="var(--color-lavender-500)" _hover={{ bg: "var(--color-lavender-600)", textDecor: "none" }}>
+                    <Link href={nextHref}>
+                        <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-500)" _hover={{ bg: "var(--color-lavender-600)", textDecor: "none" }}>
                             Continue
                         </Button>
-                    </NextLink>
+                    </Link>
                 ) : null}
             </Box>
         </div>

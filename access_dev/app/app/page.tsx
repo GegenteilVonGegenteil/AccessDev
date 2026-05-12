@@ -2,9 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { VStack, HStack, Text, Box, ProgressRoot, ProgressTrack, ProgressRange, Icon, Button } from "@chakra-ui/react";
-import { course } from "@/consts/challenges";
+import { course } from "@/consts/course";
 import CourseCard from "@/components/ui/CourseCard";
 import { getCourseProgress, markStepCompleted } from "@/lib/progress";
+
+function getStepTitle(step: (typeof course.steps)[number]): string {
+    return "name" in step ? step.name : step.title;
+}
+
+function getStepDescription(step: (typeof course.steps)[number]): string {
+    return "description" in step && "name" in step ? step.description : step.subtitle;
+}
 
 export default function Home() {
     const coursePlan = course;
@@ -65,8 +73,8 @@ export default function Home() {
                         return (
                             <CourseCard
                                 key={step.id}
-                                title={step.title}
-                                description={step.subtitle}
+                                title={getStepTitle(step)}
+                                description={getStepDescription(step)}
                                 link={stepLink}
                                 isLocked={isLocked}
                                 isCompleted={isCompleted}
