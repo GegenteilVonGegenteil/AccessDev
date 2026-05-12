@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Box, Text } from "@chakra-ui/react";
 import type { Quiz } from "@/consts/structures";
 import { course } from "@/consts/course";
 import QuestionCard from "./QuestionCard";
 import ResponseCard from "./ResponseCard";
 import Overview, { type QuizResult } from "./Overview";
+import { markQuizCompleted, markStepCompleted } from "@/lib/progress";
 
 type QuizRunnerProps = {
     quiz: Quiz;
@@ -75,6 +76,26 @@ export default function QuizRunner({ quiz }: QuizRunnerProps) {
         setSelectedOptionId(null);
         setShowResponse(false);
     };
+
+    const [hasSavedResults, setHasSavedResults] = useState(false);
+
+    useEffect(() => {
+        if (!isFinished) return;
+
+        // avoid saving multiple times
+        if (hasSavedResults) return;
+
+        const score = results.filter((result) => result.isCorrect).length;
+
+        try {
+            markQuizCompleted(quiz.id, score, quiz.questions.length);
+            markStepCompleted(quiz.id);
+        } catch {
+            // ignore storage errors
+        }
+
+        setHasSavedResults(true);
+    }, [isFinished, results, quiz, hasSavedResults]);
 
     if (isFinished) {
         const score = results.filter((result) => result.isCorrect).length;

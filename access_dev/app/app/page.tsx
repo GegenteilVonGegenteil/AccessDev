@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { VStack, HStack, Text, Box, ProgressRoot, ProgressTrack, ProgressRange} from "@chakra-ui/react";
 import { course } from "@/consts/course";
 import CourseCard from "@/components/ui/CourseCard";
-import { getCourseProgress, markStepCompleted } from "@/lib/progress";
+import { getCourseProgress, markStepCompleted, getChallengesProgress, getQuizzesProgress } from "@/lib/progress";
+import { getChallengeBySlug } from "@/consts/challenges";
 
 function getStepTitle(step: (typeof course.steps)[number]): string {
     return "name" in step ? step.name : step.title;
@@ -18,6 +19,8 @@ export default function Home() {
     const coursePlan = course;
     const totalSteps = coursePlan.steps.length;
     const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+    const [challengesProgress, setChallengesProgress] = useState<any>(null);
+    const [quizzesProgress, setQuizzesProgress] = useState<any>(null);
     const [isMounted, setIsMounted] = useState(false);
     const completedSet = useMemo(() => new Set(completedStepIds), [completedStepIds]);
     const completedCount = completedStepIds.length;
@@ -28,6 +31,12 @@ export default function Home() {
 
         const stored = getCourseProgress();
         setCompletedStepIds(stored.completedStepIds);
+
+        const cp = getChallengesProgress();
+        setChallengesProgress(cp.completed);
+
+        const qp = getQuizzesProgress();
+        setQuizzesProgress(qp.completed);
     }, []);
 
     if (!isMounted) {
@@ -70,6 +79,33 @@ export default function Home() {
                         const isLocked = previousStepId ? !completedSet.has(previousStepId) : false;
                         const stepLink = step.link?.[0] ?? "#";
 
+                        let meta: string | undefined;
+
+                        if ("type" in step && step.type === "quiz") {
+                            const q = quizzesProgress?.[step.id];
+                            if (q) {
+                                const correct = Number(q.correctCount) ?? 0;
+                                const total = Number(q.totalCount) ?? 0;
+                                const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+                                meta = `${correct}/${total} (${pct}%)`;
+                            }
+                        } else {
+                            if (step.link && step.link[0]?.includes("/app/challenges/")) {
+                                const match = step.link[0].match(/\/app\/challenges\/([^/]+)/);
+                                const slug = match ? match[1] : null;
+
+                                if (slug) {
+                                    const c = challengesProgress?.[slug];
+                                    if (c) {
+                                        const resolved = Math.min(Number(c.resolvedCount) ?? 0, Number(c.totalCount) ?? 0);
+                                        const total = Number(c.totalCount) ?? 0;
+                                        const pct = total > 0 ? Math.round((resolved / total) * 100) : 0;
+                                        meta = `${resolved}/${total} (${pct}%)`;
+                                    }
+                                }
+                            }
+                        }
+
                         return (
                             <CourseCard
                                 key={step.id}
@@ -79,6 +115,7 @@ export default function Home() {
                                 isLocked={isLocked}
                                 isCompleted={isCompleted}
                                 onAction={() => handleStepAction(step.id)}
+                                meta={meta}
                             />
                         );
                     })}

@@ -2,7 +2,7 @@
 import { Text, Box, Icon, Button } from "@chakra-ui/react";
 import { MdLockOutline, MdCheck, MdPlayArrow, MdArrowRightAlt } from "react-icons/md";
 
-export default function CourseCard({ title, description, link, isLocked = false, isCompleted = false, onAction }) {
+export default function CourseCard({ title, description, link, isLocked = false, isCompleted = false, onAction, meta }) {
     const ctaLabel = isLocked ? "Locked" : isCompleted ? "Redo" : "Start";
     const StatusIcon = isLocked ? MdLockOutline : isCompleted ? MdCheck : MdPlayArrow;
     const backgoundColor = isLocked ? "var(--color-background)" : isCompleted ? "var(--color-lavender-950)" : "var(--color-violet-eggplant-950)";
@@ -18,13 +18,18 @@ export default function CourseCard({ title, description, link, isLocked = false,
                                 <StatusIcon />
                             </Icon>
                         </Box>
-                        <div className="flex flex-col w-full gap-2 items-start justify-center">
+                        <div className="flex flex-col w-full gap-1 items-start justify-center">
                             <Text as="h2" fontSize="2xl" fontWeight="bold" color={textColor} textAlign="center">
                                 {title}
                             </Text>
-                            <Text fontSize="md" color={descriptionColor} textAlign="center">
-                                {isLocked ? "Complete previous challenges" : description}
+                            <Text fontSize="md" color={descriptionColor}>
+                                {isLocked ? "Complete previous challenges" : isCompleted ? null : description}
                             </Text>
+                            {meta ? (
+                                <Text fontSize="sm" color={descriptionColor} textAlign="center">
+                                    {meta}
+                                </Text>
+                            ) : null}
                         </div>
                         {isLocked ? (
                             <Button size="lg" bg="transparent" color="var(--color-text)" variant="outline" border="1px solid var(--color-text)" opacity={0.5} cursor="not-allowed" disabled>

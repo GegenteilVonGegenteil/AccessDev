@@ -1,5 +1,6 @@
 export const PROGRESS_STORAGE_KEY = "accessdev.course.progress.v1";
 export const CHALLENGES_STORAGE_KEY = "accessdev.challenges.completed.v1";
+export const QUIZZES_STORAGE_KEY = "accessdev.quizzes.completed.v1";
 
 export type CourseProgress = {
   completedStepIds: string[];
@@ -17,11 +18,26 @@ export type ChallengesProgress = {
   completed: Record<string, ChallengeCompletion>;
 };
 
+export type QuizCompletion = {
+  slug: string;
+  correctCount: number;
+  totalCount: number;
+  completedAt: number;
+};
+
+export type QuizzesProgress = {
+  completed: Record<string, QuizCompletion>;
+};
+
 const defaultProgress: CourseProgress = {
   completedStepIds: [],
 };
 
 const defaultChallengesProgress: ChallengesProgress = {
+  completed: {},
+};
+
+const defaultQuizzesProgress: QuizzesProgress = {
   completed: {},
 };
 
@@ -61,6 +77,24 @@ export function getChallengesProgress(): ChallengesProgress {
   }
 }
 
+export function getQuizzesProgress(): QuizzesProgress {
+  if (typeof window === "undefined") return defaultQuizzesProgress;
+
+  try {
+    const rawValue = window.localStorage.getItem(QUIZZES_STORAGE_KEY);
+    if (!rawValue) return defaultQuizzesProgress;
+
+    const parsed = JSON.parse(rawValue) as Partial<QuizzesProgress>;
+    if (!parsed.completed || typeof parsed.completed !== "object") return defaultQuizzesProgress;
+
+    return {
+      completed: parsed.completed,
+    } as QuizzesProgress;
+  } catch {
+    return defaultQuizzesProgress;
+  }
+}
+
 export function saveCourseProgress(progress: CourseProgress): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress));
@@ -69,6 +103,11 @@ export function saveCourseProgress(progress: CourseProgress): void {
 export function saveChallengesProgress(progress: ChallengesProgress): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(CHALLENGES_STORAGE_KEY, JSON.stringify(progress));
+}
+
+export function saveQuizzesProgress(progress: QuizzesProgress): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(QUIZZES_STORAGE_KEY, JSON.stringify(progress));
 }
 
 export function markChallengeCompleted(
@@ -92,6 +131,24 @@ export function markChallengeCompleted(
   };
 
   saveChallengesProgress(next);
+  return next;
+}
+
+export function markQuizCompleted(slug: string, correctCount: number, totalCount: number): QuizzesProgress {
+  const current = getQuizzesProgress();
+  const next: QuizzesProgress = {
+    completed: {
+      ...current.completed,
+      [slug]: {
+        slug,
+        correctCount,
+        totalCount,
+        completedAt: Date.now(),
+      },
+    },
+  };
+
+  saveQuizzesProgress(next);
   return next;
 }
 

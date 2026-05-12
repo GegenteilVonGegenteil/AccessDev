@@ -43,20 +43,30 @@ export default function Overview({ quiz, results, score, continueHref }: Overvie
                 })}
             </Box>
 
-            <Box width="3xl" display="flex" justifyContent="end" gap={4}>
-                <NextLink href="/app" passHref>
-                    <Button variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-300)", color: "var(--color-lavender-300)", bgColor: "transparent" }}>
-                        Go Home
-                    </Button>
-                </NextLink>
-                {continueHref ? (
+            {continueHref ? (
+                <Box width="full" display="flex" justifyContent="end" gap={4}>
+                    <NextLink href="/app" passHref>
+                        <Button variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-300)", color: "var(--color-lavender-300)", bgColor: "transparent" }}>
+                            Go Home
+                        </Button>
+                    </NextLink>
                     <NextLink href={continueHref} passHref>
                         <Button variant="solid" color="var(--color-background)" bgColor="var(--color-lavender-500)" _hover={{ bgColor: "var(--color-lavender-400)" }}>
                             Continue
                         </Button>
                     </NextLink>
-                ) : null}
-            </Box>
+
+                </Box>
+            ) : (
+                <Box width="full" display="flex" justifyContent="end" gap={4}>
+                    <NextLink href="/app" passHref>
+                        <Button variant="solid" color="var(--color-background)" bgColor="var(--color-lavender-500)" _hover={{ bgColor: "var(--color-lavender-400)" }}>
+                            Go Home
+                        </Button>
+                    </NextLink>
+                </Box>
+            )
+            }
         </Box>
     );
 }
