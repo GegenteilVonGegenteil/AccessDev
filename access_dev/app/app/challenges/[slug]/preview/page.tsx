@@ -17,7 +17,7 @@ export default async function ChallengePreviewPage({ params }: { params: { slug:
                     Challenge {challenge.id}: {challenge.title}
                 </Text>
 
-                <Box w="full" maxW="200px" h="8px" bgGradient="to-r" gradientFrom="var(--color-violet-eggplant-900)" gradientTo="var(--color-mantis-400)" borderRadius="full" />
+                <Box w="full" maxW="200px" h="4px" bgGradient="to-r" gradientFrom="var(--color-violet-eggplant-900)" gradientTo="var(--color-mantis-400)" borderRadius="full" />
 
                 <Text fontSize="md">
                     {challenge.description}
@@ -53,7 +53,7 @@ export default async function ChallengePreviewPage({ params }: { params: { slug:
                         </Button>
                     </Link>
                     <Link href={`/app/challenges/${challenge.slug}`}>
-                        <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-500)" _hover={{ bg: "var(--color-lavender-600)", textDecor: "none" }} >
+                        <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} >
                             Continue
                         </Button>
                     </Link>

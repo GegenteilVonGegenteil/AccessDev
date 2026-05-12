@@ -149,7 +149,7 @@ export default function ChallengeSuccessPage() {
 
                 {nextHref ? (
                     <Link href={nextHref}>
-                        <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-500)" _hover={{ bg: "var(--color-lavender-600)", textDecor: "none" }}>
+                        <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }}>
                             Continue
                         </Button>
                     </Link>
