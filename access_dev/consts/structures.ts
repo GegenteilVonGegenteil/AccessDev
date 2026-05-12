@@ -9,6 +9,7 @@ export type Question = {
     options: Option[];
     correctOptionId: string;
     explanation: string;
+    link: string[];
 };
 
 export type Quiz = {

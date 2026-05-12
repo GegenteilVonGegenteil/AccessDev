@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from "react";
-import { VStack, HStack, Text, Box, ProgressRoot, ProgressTrack, ProgressRange, Icon, Button } from "@chakra-ui/react";
+import { VStack, HStack, Text, Box, ProgressRoot, ProgressTrack, ProgressRange} from "@chakra-ui/react";
 import { course } from "@/consts/course";
 import CourseCard from "@/components/ui/CourseCard";
 import { getCourseProgress, markStepCompleted } from "@/lib/progress";

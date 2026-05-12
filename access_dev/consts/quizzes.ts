@@ -22,7 +22,8 @@ const QUIZ_1_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       "The WHO estimates 1 in 6 people globally experience significant disability — many of whom navigate the web daily.",
-  },
+    link: ["https://www.who.int/news-room/fact-sheets/detail/disability-and-health"],
+    },
   {
     id: "quiz-1-q2",
     text: "Which of these is NOT considered a web accessibility barrier?",
@@ -35,6 +36,7 @@ const QUIZ_1_QUESTIONS: Question[] = [
     correctOptionId: "c",
     explanation:
       "Dark themes aren't inherently inaccessible — contrast ratio is what matters, not the colour itself. A well-designed dark theme can be highly accessible.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-1-q3",
@@ -48,6 +50,8 @@ const QUIZ_1_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       "The Equality Act 2010 prohibits discrimination, including through inaccessible digital services. Public sector bodies also fall under the Public Sector Bodies Accessibility Regulations.",
+  
+    link: ["https://www.equalityhumanrights.com/en/what-we-do/protected-characteristics/disability"],
   },
   {
     id: "quiz-1-q4",
@@ -61,6 +65,7 @@ const QUIZ_1_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       "Accessible HTML — semantic structure, alt text, labels — is exactly what search engines index. Accessibility and SEO are deeply aligned.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-1-q5",
@@ -74,6 +79,8 @@ const QUIZ_1_QUESTIONS: Question[] = [
     correctOptionId: "d",
     explanation:
       "This is the curb-cut effect — features built for specific disabilities end up helping everyone. Accessibility improvements are usability improvements.",
+  
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
 ];
 
@@ -90,6 +97,7 @@ const QUIZ_2_QUESTIONS: Question[] = [
     correctOptionId: "c",
     explanation:
       "4.5:1 is required for normal text, 3:1 for large text (18pt+). WCAG AAA raises this to 7:1 for normal text.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-2-q2",
@@ -103,7 +111,8 @@ const QUIZ_2_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       "Around 300 million people globally — roughly 8% of men and 0.5% of women — have some form of colour vision deficiency.",
-  },
+ 
+    link: ["https://www.colourblindawareness.org/colour-blindness/"],},
   {
     id: "quiz-2-q3",
     text: "A user increases their browser font size to 200%. What should happen to your layout?",
@@ -116,6 +125,8 @@ const QUIZ_2_QUESTIONS: Question[] = [
     correctOptionId: "c",
     explanation:
       "WCAG 1.4.4 requires text to be resizable up to 200% without loss of content or functionality. Use relative units like rem and em rather than fixed px values.",
+  
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-2-q4",
@@ -129,6 +140,7 @@ const QUIZ_2_QUESTIONS: Question[] = [
     correctOptionId: "c",
     explanation:
       'alt="" tells screen readers to skip the image entirely. Omitting alt altogether causes some readers to announce the filename instead, which is meaningless noise.',
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-2-q5",
@@ -142,6 +154,7 @@ const QUIZ_2_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       "Visual proximity means nothing to assistive technology. The <label> element — or aria-labelledby — creates the programmatic link a screen reader needs. This is exactly what the next challenge is about.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
 ];
 
@@ -158,6 +171,7 @@ const QUIZ_3_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       "Placeholder text is not a label substitute — it disappears on input and is often low contrast. Without a label, users have no reliable way to know what a field is for.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-3-q2",
@@ -171,6 +185,7 @@ const QUIZ_3_QUESTIONS: Question[] = [
     correctOptionId: "c",
     explanation:
       "Screen readers only announce content changes if the element has aria-live, or if focus is explicitly moved to the message. Silent errors are invisible errors.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-3-q3",
@@ -184,6 +199,7 @@ const QUIZ_3_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       'For critical errors like form validation failures, role="alert" (or aria-live="assertive") ensures immediate announcement. polite is better for non-urgent status updates.',
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-3-q4",
@@ -197,6 +213,7 @@ const QUIZ_3_QUESTIONS: Question[] = [
     correctOptionId: "d",
     explanation:
       "Cognitive accessibility improvements — clear headings, plain language, consistent layout — have the widest reach of almost any accessibility measure.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-3-q5",
@@ -210,6 +227,7 @@ const QUIZ_3_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       "Without it, keyboard and screen reader users must tab through every nav item on every page load. It's one of the simplest wins in accessibility — and it leads directly into what the next challenge is about.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
 ];
 
@@ -226,6 +244,7 @@ const QUIZ_4_QUESTIONS: Question[] = [
     correctOptionId: "c",
     explanation:
       'Positive tabindex values override the natural DOM order globally, which becomes impossible to maintain at scale. The correct fix is almost always to reorder the DOM itself, using tabindex="0" only when you need to add a non-interactive element into the tab flow.',
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-4-q2",
@@ -239,6 +258,7 @@ const QUIZ_4_QUESTIONS: Question[] = [
     correctOptionId: "b",
     explanation:
       "Native <button> elements give you focusability, Enter/Space activation, and an implicit ARIA role for free. A <div> gives you none of these. Always prefer the semantically correct element.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-4-q3",
@@ -250,6 +270,7 @@ const QUIZ_4_QUESTIONS: Question[] = [
       { id: "d", text: "When a page has too many interactive elements" },
     ],
     correctOptionId: "c",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
     explanation:
       "WCAG 2.1.2 prohibits keyboard traps except where trapping focus is intentional and escapable — such as open modals, where users shouldn't be able to Tab behind the dialog.",
   },
@@ -265,6 +286,7 @@ const QUIZ_4_QUESTIONS: Question[] = [
     correctOptionId: "c",
     explanation:
       "Automated tools catch structural issues reliably but can't assess whether alt text is meaningful, whether focus order makes logical sense, or whether content is understandable. Manual testing — including with real assistive technology — is irreplaceable.",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
     id: "quiz-4-q5",
@@ -276,6 +298,7 @@ const QUIZ_4_QUESTIONS: Question[] = [
       { id: "d", text: "Before launch" },
     ],
     correctOptionId: "c",
+    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
     explanation:
       "Retrofitting accessibility is significantly more expensive than building it in from the start. The issues you just fixed would take minutes in a new project — and hours in a legacy codebase.",
   },

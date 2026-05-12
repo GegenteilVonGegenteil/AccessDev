@@ -11,7 +11,7 @@ export default function QuestionCard({ quiz }: { quiz: Quiz }) {
             </Text>
             <Box w="full" maxW="200px" h="4px" bgGradient="to-r" gradientFrom="var(--color-violet-eggplant-900)" gradientTo="var(--color-mantis-400)" borderRadius="full" />
             {quiz.questions[0].options.map((option) => (
-                <RadioCard.Root key={option.id} w="full" maxW="2xl" cursor="pointer" borderRadius="lg" bgColor="var(--color-lavender-950)" borderColor="transparent">
+                <RadioCard.Root key={option.id} w="full" maxW="2xl" cursor="pointer" borderRadius="lg" borderColor="transparent">
                     <RadioCard.Item key={option.id} value={option.id} borderColor="transparent" bgColor="var(--color-lavender-950)" _hover={{ bgColor: "var(--color-lavender-900)" }} _checked={{ borderColor: "var(--color-lavender-500)" }} >
                         <RadioCard.ItemHiddenInput />
                         <RadioCard.ItemControl>
