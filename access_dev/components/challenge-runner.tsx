@@ -7,7 +7,16 @@ import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { FiAlertTriangle, FiEye, FiInfo, FiX } from "react-icons/fi";
 import type { ChallengeDefinition } from "@/consts/challenges";
-import { Box, Button, IconButton, Text } from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    HStack,
+    IconButton,
+    Link,
+    SimpleGrid,
+    Text,
+    VStack,
+} from "@chakra-ui/react";
 import { LuCodeXml } from "react-icons/lu";
 import {
     getPreviewDoc,
@@ -19,7 +28,6 @@ import {
     type ContrastColorTargetKey,
 } from "@/lib/challenge-utils";
 import { markChallengeCompleted } from "@/lib/progress";
-import "./challenge-runner.css";
 
 type ChallengeRunnerProps = {
     challenge: ChallengeDefinition;
@@ -78,19 +86,12 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
     const editorViewRef = useRef<EditorView | null>(null);
     const [code, setCode] = useState(challenge.starterCode);
     const [revealedHints, setRevealedHints] = useState<Set<number>>(new Set());
-    const [isMounted, setIsMounted] = useState(false);
     const [isInfoOpen, setIsInfoOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => setIsMounted(true), []);
     const [selectedContrastTarget, setSelectedContrastTarget] = useState<ContrastColorTargetKey>("title");
 
     useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (!isMounted) {
-            return undefined;
-        }
-
         const host = editorHostRef.current;
 
         if (!host || editorViewRef.current) {
@@ -119,7 +120,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
             editorViewRef.current?.destroy();
             editorViewRef.current = null;
         };
-    }, [challenge.starterCode, isMounted]);
+    }, [challenge.starterCode]);
 
     useEffect(() => {
         const view = editorViewRef.current;
@@ -150,26 +151,26 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
         [challenge.errors, resolvedIssues]
     );
     const contrastMetrics = useMemo(() => {
-        if (challenge.type !== "contrast") {
+        if (challenge.type !== "contrast" || !isMounted) {
             return null;
         }
 
         return getContrastMetrics(code);
-    }, [challenge.type, code]);
+    }, [challenge.type, code, isMounted]);
     const contrastColorTargets = useMemo(() => {
-        if (challenge.type !== "contrast") {
+        if (challenge.type !== "contrast" || !isMounted) {
             return null;
         }
 
         return getContrastColorTargets(code);
-    }, [challenge.type, code]);
+    }, [challenge.type, code, isMounted]);
     const screenReaderSimulation = useMemo(() => {
-        if (challenge.type !== "screen-reader") {
+        if (challenge.type !== "screen-reader" || !isMounted) {
             return null;
         }
 
         return extractScreenReaderSimulation(code, challenge);
-    }, [challenge, code]);
+    }, [challenge, code, isMounted]);
 
     useEffect(() => {
         if (!isInfoOpen) {
@@ -192,19 +193,6 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
         markChallengeCompleted(challenge.slug, resolved, challenge.errors.length, hintsUsed);
         router.push(`/app/challenges/${challenge.slug}/success`);
     };
-
-    if (!isMounted) {
-        return (
-            <div className="challenge-runner">
-                <div className="challenge-runner__header">
-                    <Text as="h1" fontSize="2xl">Challenge {challenge.id}: {challenge.title}</Text>
-                </div>
-                <div className="challenge-runner__content">
-                    <Text color="var(--color-lavender-300)">Loading challenge preview...</Text>
-                </div>
-            </div>
-        );
-    }
 
     const handleReset = () => {
         setCode(challenge.starterCode);
@@ -239,240 +227,288 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
         contrastColorTargets?.[selectedContrastTarget] ?? "#000000";
 
     return (
-        <div className="challenge-runner">
-            <div className="challenge-runner__header">
-                <Text as="h1" fontSize="2xl">Challenge {challenge.id}: {challenge.title}</Text>
-                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <Button
-                        onClick={handleContinueToSuccess}
-                        variant="solid"
-                        color="var(--color-background)" 
-                        bg="var(--color-lavender-400)" 
-                        _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} 
-                    >
-                        End Challenge
-                    </Button>
-                    <IconButton
-                        aria-label="Challenge information"
-                        rounded="full"
-                        background="transparent"
-                        onClick={() => setIsInfoOpen(true)}
-                    >
-                        <FiInfo className="h-5 w-5" />
-                    </IconButton>
-                </div>
-            </div>
-            <div className="challenge-runner__grid">
-                <section className="challenge-runner__section">
-                    <div className="challenge-runner__section-header">
-                        <div className="challenge-runner__section-title">
-                            <LuCodeXml />
-                            <span>index.html</span>
-                        </div>
-                        <Button type="button" onClick={handleReset} variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }}>
-                            Reset
+        <Box maxW="7xl" mx="auto" w="full" px={{ base: 4, lg: 0 }} py={{ base: 8, lg: 10 }} color="var(--color-text)">
+            <VStack align="stretch" gap={8}>
+                <HStack align="flex-start" justify="space-between" gap={4}>
+                    <VStack align="start" gap={2}>
+                        <Text as="h1" fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold">
+                            Challenge {challenge.id}: {challenge.title}
+                        </Text>
+                        <Text maxW="3xl" color="var(--color-lavender-200)">
+                            {challenge.objective}
+                        </Text>
+                    </VStack>
+
+                    <HStack gap={2} flexShrink={0}>
+                        <Button
+                            onClick={handleContinueToSuccess}
+                            variant="solid"
+                            color="var(--color-background)"
+                            bg="var(--color-lavender-400)"
+                            _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }}
+                        >
+                            End Challenge
                         </Button>
-                    </div>
-                    <div className={challenge.type === "contrast" ? "challenge-runner__editor-container challenge-runner__editor-container--contrast" : "challenge-runner__editor-container"}>
-                        <div ref={editorHostRef} className="challenge-runner__editor-host" />
-                        {challenge.type === "contrast" ? (
-                            <div className="challenge-runner__contrast-tools">
-                                <div className="challenge-runner__contrast-tools-header">
-                                    <div>
-                                        <div className="challenge-runner__contrast-tools-title">Color wheel</div>
-                                        <div className="challenge-runner__contrast-tools-description">
-                                            Pick a target, then adjust the hex value live in the editor.
-                                        </div>
-                                    </div>
+                        <IconButton
+                            aria-label="Challenge information"
+                            rounded="full"
+                            background="transparent"
+                            onClick={() => setIsInfoOpen(true)}
+                        >
+                            <FiInfo className="h-5 w-5" />
+                        </IconButton>
+                    </HStack>
+                </HStack>
 
-                                </div>
+                <SimpleGrid columns={{ base: 1, lg: 2 }} gap={5} alignItems="stretch">
+                    <Box borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="2xl" overflow="hidden" bg="var(--color-background)" display="flex" flexDirection="column" minH={{ base: "14rem", lg: "18rem" }} maxH={{ base: "26rem", lg: "32rem" }}>
+                        <HStack justify="space-between" borderBottomWidth="1px" borderColor="var(--color-lavender-500)" px={5} py={4}>
+                            <HStack gap={3} color="var(--color-lavender-100)">
+                                <LuCodeXml />
+                                <Text fontFamily="var(--font-mono)" fontSize="sm">index.html</Text>
+                            </HStack>
+                            <Button type="button" onClick={handleReset} variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }}>
+                                Reset
+                            </Button>
+                        </HStack>
 
-                                <div className="challenge-runner__contrast-targets">
-                                    {contrastTargetOptions.map((target) => (
-                                        <button
-                                            key={target.key}
-                                            type="button"
-                                            className={selectedContrastTarget === target.key ? "challenge-runner__contrast-target challenge-runner__contrast-target--active" : "challenge-runner__contrast-target"}
-                                            onClick={() => setSelectedContrastTarget(target.key)}
-                                        >
-                                            {target.label}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                <label className="challenge-runner__contrast-picker-label">
-                                    <span className="challenge-runner__contrast-picker-title">Hex color picker</span>
-                                    <input
-                                        type="color"
-                                        value={selectedContrastColor}
-                                        onChange={(event) => handleContrastColorChange(event.target.value)}
-                                        className="challenge-runner__contrast-picker"
-                                    />
-                                </label>
-                            </div>
-                        ) : null}
-                    </div>
-                </section>
-
-                <section className="challenge-runner__section">
-                    <div className="challenge-runner__section-header challenge-runner__section-header--alt">
-                        <div className="challenge-runner__section-title">
-                            <FiEye className="challenge-runner__icon" />
-                            <span>Preview</span>
-                        </div>
-                    </div>
-                    {screenReaderSimulation ? (
-                        <div className="challenge-runner__preview-container challenge-runner__preview-container--screen-reader">
-                            <div className="challenge-runner__simulated-output challenge-runner__simulated-output--transcript" aria-live="polite">
-                                <div className="challenge-runner__simulated-title">Simulated Screen Reader Output</div>
-                                {screenReaderSimulation.headingLines.map((line) => (
-                                    <div key={line} className="challenge-runner__simulated-line">{line}</div>
-                                ))}
-                                {screenReaderSimulation.inputLines.map((line) => (
-                                    <div key={line} className="challenge-runner__simulated-line">{line}</div>
-                                ))}
-                                {screenReaderSimulation.buttonLines.map((line) => (
-                                    <div key={line} className="challenge-runner__simulated-line">{line}</div>
-                                ))}
-                                <div className="challenge-runner__simulated-line">
-                                    <strong>Status region:</strong> {screenReaderSimulation.liveText}
-                                </div>
-                                {screenReaderSimulation.warnings.map((warning) => (
-                                    <div key={warning} className="challenge-runner__simulated-warning">{warning}</div>
-                                ))}
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="challenge-runner__preview-container">
-                            {contrastMetrics ? (
-                                <div style={{ display: "flex", gap: "8px", padding: "8px 10px", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)" }}>
-                                    <div className="challenge-runner__hint-item" style={{ margin: 0, padding: "6px 10px" }}>
-                                        Title: {contrastMetrics.title ? `${contrastMetrics.title.toFixed(2)}:1` : "n/a"}
-                                    </div>
-                                    <div className="challenge-runner__hint-item" style={{ margin: 0, padding: "6px 10px" }}>
-                                        Body: {contrastMetrics.body ? `${contrastMetrics.body.toFixed(2)}:1` : "n/a"}
-                                    </div>
-                                    <div className="challenge-runner__hint-item" style={{ margin: 0, padding: "6px 10px" }}>
-                                        Button: {contrastMetrics.button ? `${contrastMetrics.button.toFixed(2)}:1` : "n/a"}
-                                    </div>
-                                </div>
-                            ) : null}
-                            <iframe
-                                title={`${challenge.title} preview`}
-                                sandbox="allow-scripts allow-modals"
-                                className="challenge-runner__preview-iframe"
-                                srcDoc={previewDoc}
+                        <Box p={3} flex="1" minH={0} display="flex" flexDirection="column" gap={3}>
+                            <Box
+                                ref={editorHostRef}
+                                flex="1"
+                                minH={0}
+                                maxH="100%"
+                                overflowY="auto"
+                                borderRadius="xl"
+                                borderWidth="1px"
+                                borderColor="whiteAlpha.100"
                             />
-                        </div>
-                    )}
-                </section>
-            </div>
 
-            <div className="challenge-runner__grid">
-                <section className="challenge-runner__section">
-                    <div className="challenge-runner__section-header challenge-runner__section-header--alt">
-                        <div className="challenge-runner__section-title">
-                            <FiAlertTriangle className="challenge-runner__icon" />
-                            <span>Errors</span>
-                        </div>
-                    </div>
-                    <div className="challenge-runner__content">
-                        {activeErrors.length === 0 ? (
-                            <div className="challenge-runner__hint-item">All current issues resolved.</div>
-                        ) : activeErrors.map((error) => (
-                            <div key={error} className="challenge-runner__error-item">
-                                {error}
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                            {challenge.type === "contrast" ? (
+                                <VStack align="stretch" gap={3} p={3} borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="xl">
+                                    <VStack align="start" gap={1}>
+                                        <Text fontFamily="var(--font-mono)" fontSize="sm" textTransform="uppercase" letterSpacing="0.05em" color="var(--color-lavender-100)">
+                                            Color wheel
+                                        </Text>
+                                        <Text fontSize="sm" color="var(--color-lavender-200)">
+                                            Pick a target, then adjust the hex value live in the editor.
+                                        </Text>
+                                    </VStack>
 
-                <section className="challenge-runner__section">
-                    <div className="challenge-runner__section-header challenge-runner__section-header--alt">
-                        <div className="challenge-runner__section-title">
-                            <FiInfo className="challenge-runner__icon" />
-                            <span>Hints</span>
-                        </div>
-                    </div>
-                    <div className="challenge-runner__content">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <SimpleGrid columns={{ base: 2, md: 4 }} gap={2}>
+                                        {contrastTargetOptions.map((target) => (
+                                            <Button
+                                                key={target.key}
+                                                type="button"
+                                                onClick={() => setSelectedContrastTarget(target.key)}
+                                                variant={selectedContrastTarget === target.key ? "solid" : "outline"}
+                                                color={selectedContrastTarget === target.key ? "var(--color-text)" : "var(--color-lavender-100)"}
+                                                bg={selectedContrastTarget === target.key ? "var(--color-lavender-900)" : "transparent"}
+                                                borderColor="var(--color-lavender-500)"
+                                                _hover={{ bg: "var(--color-lavender-950)" }}
+                                            >
+                                                {target.label}
+                                            </Button>
+                                        ))}
+                                    </SimpleGrid>
+
+                                    <Box>
+                                        <Text fontSize="sm" color="var(--color-lavender-200)" mb={2}>
+                                            Hex color picker
+                                        </Text>
+                                        <input
+                                            type="color"
+                                            value={selectedContrastColor}
+                                            onChange={(event) => handleContrastColorChange(event.target.value)}
+                                            style={{ width: "100%", height: "5rem", padding: 4, background: "transparent", cursor: "pointer" }}
+                                        />
+                                    </Box>
+                                </VStack>
+                            ) : null}
+                        </Box>
+                    </Box>
+
+                    <Box borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="2xl" overflow="hidden" bg="var(--color-background)" display="flex" flexDirection="column" minH={{ base: "14rem", lg: "18rem" }} maxH={{ base: "26rem", lg: "32rem" }}>
+                        <HStack gap={3} borderBottomWidth="1px" borderColor="var(--color-lavender-500)" px={5} py={4} color="var(--color-lavender-100)">
+                            <FiEye />
+                            <Text fontFamily="var(--font-mono)" fontSize="sm">Preview</Text>
+                        </HStack>
+
+                        {screenReaderSimulation ? (
+                            <VStack align="stretch" gap={3} p={3} flex="1" minH={0} bg="var(--color-lavender-50)" height="100%">
+                                <Box flex="1" minH={0} overflow="auto" borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="xl" p={4} bg="var(--color-background)">
+                                    <Text fontFamily="var(--font-mono)" fontSize="sm" textTransform="uppercase" letterSpacing="0.05em" color="var(--color-lavender-100)" mb={3}>
+                                        Simulated Screen Reader Output
+                                    </Text>
+                                    <VStack align="stretch" gap={2}>
+                                        {screenReaderSimulation.headingLines.map((line) => (
+                                            <Box key={line} borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
+                                                {line}
+                                            </Box>
+                                        ))}
+                                        {screenReaderSimulation.inputLines.map((line) => (
+                                            <Box key={line} borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
+                                                {line}
+                                            </Box>
+                                        ))}
+                                        {screenReaderSimulation.buttonLines.map((line) => (
+                                            <Box key={line} borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
+                                                {line}
+                                            </Box>
+                                        ))}
+                                        <Box borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
+                                            <strong>Status region:</strong> {screenReaderSimulation.liveText}
+                                        </Box>
+                                        {screenReaderSimulation.warnings.map((warning) => (
+                                            <Box key={warning} borderRadius="xl" borderWidth="1px" borderColor="var(--color-violet-eggplant-400)" bg="var(--color-violet-eggplant-950)" px={4} py={3} fontSize="sm">
+                                                {warning}
+                                            </Box>
+                                        ))}
+                                    </VStack>
+                                </Box>
+                            </VStack>
+                        ) : (
+                            <VStack align="stretch" gap={3} p={3} flex="1" minH={0} bg="var(--color-lavender-50)" height="100%">
+                                {contrastMetrics ? (
+                                    <HStack gap={2} flexWrap="wrap" borderBottomWidth="1px" borderColor="rgba(255,255,255,0.08)" bg="rgba(255,255,255,0.04)" px={3} py={2} borderRadius="xl">
+                                        <Box px={3} py={2} borderRadius="lg" bg="var(--color-background)" borderWidth="1px" borderColor="var(--color-lavender-500)" fontSize="sm">
+                                            Title: {contrastMetrics.title ? `${contrastMetrics.title.toFixed(2)}:1` : "n/a"}
+                                        </Box>
+                                        <Box px={3} py={2} borderRadius="lg" bg="var(--color-background)" borderWidth="1px" borderColor="var(--color-lavender-500)" fontSize="sm">
+                                            Body: {contrastMetrics.body ? `${contrastMetrics.body.toFixed(2)}:1` : "n/a"}
+                                        </Box>
+                                        <Box px={3} py={2} borderRadius="lg" bg="var(--color-background)" borderWidth="1px" borderColor="var(--color-lavender-500)" fontSize="sm">
+                                            Button: {contrastMetrics.button ? `${contrastMetrics.button.toFixed(2)}:1` : "n/a"}
+                                        </Box>
+                                    </HStack>
+                                ) : null}
+
+                                <Box flex="1" minH={0} borderRadius="xl" overflow="hidden" borderWidth="1px" borderColor="var(--color-lavender-500)" height="100%">
+                                    <iframe title={`${challenge.title} preview`} sandbox="allow-scripts allow-modals" style={{ width: "100%", height: "100%", border: 0, background: "white", display: "block" }} srcDoc={previewDoc} />
+                                </Box>
+                            </VStack>
+                        )}
+                    </Box>
+                </SimpleGrid>
+
+                <SimpleGrid columns={{ base: 1, lg: 2 }} gap={5}>
+                    <Box borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="2xl" overflow="hidden" bg="var(--color-background)">
+                        <HStack gap={3} borderBottomWidth="1px" borderColor="var(--color-lavender-500)" px={5} py={4} color="var(--color-lavender-100)">
+                            <FiAlertTriangle />
+                            <Text fontFamily="var(--font-mono)" fontSize="sm">Errors</Text>
+                        </HStack>
+                        <VStack align="stretch" gap={3} p={5}>
+                            {activeErrors.length === 0 ? (
+                                <Box borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
+                                    All current issues resolved.
+                                </Box>
+                            ) : activeErrors.map((error) => (
+                                <Box key={error} borderRadius="xl" borderWidth="1px" borderColor="var(--color-violet-eggplant-400)" bg="var(--color-violet-eggplant-950)" px={4} py={3} fontSize="sm">
+                                    {error}
+                                </Box>
+                            ))}
+                        </VStack>
+                    </Box>
+
+                    <Box borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="2xl" overflow="hidden" bg="var(--color-background)">
+                        <HStack gap={3} borderBottomWidth="1px" borderColor="var(--color-lavender-500)" px={5} py={4} color="var(--color-lavender-100)">
+                            <FiInfo />
+                            <Text fontFamily="var(--font-mono)" fontSize="sm">Hints</Text>
+                        </HStack>
+                        <VStack align="stretch" gap={3} p={5}>
                             {challenge.hints.map((hint, index) => (
                                 revealedHints.has(index) ? (
-                                    <div key={index} className="challenge-runner__hint-item">
+                                    <Box key={index} borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
                                         {hint}
-                                    </div>
+                                    </Box>
                                 ) : (
-                                    <button
+                                    <Button
                                         key={index}
                                         type="button"
                                         onClick={() => revealHint(index)}
-                                        className="challenge-runner__reveal-btn"
+                                        variant="solid"
+                                        bg="var(--color-lavender-700)"
+                                        color="var(--color-text)"
+                                        justifyContent="flex-start"
+                                        _hover={{ bg: "var(--color-lavender-800)" }}
                                     >
                                         Hint {index + 1}
-                                    </button>
+                                    </Button>
                                 )
                             ))}
-                        </div>
-                    </div>
-                </section>
-            </div>
+                        </VStack>
+                    </Box>
+                </SimpleGrid>
+            </VStack>
 
             {isInfoOpen ? (
-                <div className="challenge-runner__overlay" role="presentation" onClick={() => setIsInfoOpen(false)}>
-                    <div
-                        className="challenge-runner__dialog"
+                <Box
+                    position="fixed"
+                    inset={0}
+                    zIndex={50}
+                    display="grid"
+                    placeItems="center"
+                    px={4}
+                    py={6}
+                    bg="rgba(5, 8, 20, 0.72)"
+                    backdropFilter="blur(10px)"
+                    onClick={() => setIsInfoOpen(false)}
+                >
+                    <Box
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="challenge-info-title"
                         aria-describedby="challenge-info-description"
+                        w="min(720px, 100%)"
+                        maxH="min(80vh, 820px)"
+                        overflow="auto"
+                        borderWidth="1px"
+                        borderColor="var(--color-lavender-500)"
+                        borderRadius="2xl"
+                        bg="var(--color-background)"
+                        color="var(--color-text)"
+                        shadow="0 24px 80px rgba(0, 0, 0, 0.45)"
+                        p={6}
                         onClick={(event) => event.stopPropagation()}
                     >
-                        
-                        <div className="challenge-runner__dialog-header">
-                            <div>
-                                <Text id="challenge-info-title" as="h2" fontSize="xl" fontWeight="semibold">
-                                    Challenge {challenge.id}: {challenge.title}
-                                </Text>
-                            </div>
-                            <IconButton
-                            aria-label="Close challenge details"
-                            rounded="full"
-                            background="transparent"
-                            onClick={() => setIsInfoOpen(false)}
-                        >
-                            <FiX className="h-5 w-5" />
-                        </IconButton>
-                        </div>
+                        <HStack justify="space-between" align="center" gap={4} mb={5}>
+                            <Text id="challenge-info-title" as="h2" fontSize="xl" fontWeight="semibold">
+                                Challenge {challenge.id}: {challenge.title}
+                            </Text>
+                            <IconButton aria-label="Close challenge details" rounded="full" background="transparent" onClick={() => setIsInfoOpen(false)}>
+                                <FiX className="h-5 w-5" />
+                            </IconButton>
+                        </HStack>
 
-                        <div className="challenge-runner__dialog-body">
-                             <Text id="challenge-info-description">
-                                    {challenge.objective}
-                                </Text>
+                        <VStack id="challenge-info-description" align="stretch" gap={6}>
+                            <Text>{challenge.objective}</Text>
 
-                            {challenge.resources && challenge.resources.length > 0 && (
+                            {challenge.resources && challenge.resources.length > 0 ? (
                                 <Box>
                                     <Text fontSize="sm" textTransform="uppercase" letterSpacing="0.08em" color="var(--color-lavender-200)" mb={3}>
                                         Resources
                                     </Text>
-                                    <div style={{ display: "grid", gap: "8px" }}>
+                                    <VStack align="stretch" gap={2} px={2}>
                                         {challenge.resources.map((resource) => (
-                                            <a
+                                            <Link
                                                 key={resource.href}
                                                 href={resource.href}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="challenge-runner__resource-link"
+                                                color="var(--color-violet-eggplant-400)"
+                                                variant="underline"
+                                                _hover={{ color: "var(--color-violet-eggplant-600)" }}
                                             >
                                                 {resource.label}
-                                            </a>
+                                            </Link>
                                         ))}
-                                    </div>
+                                    </VStack>
                                 </Box>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                            ) : null}
+                        </VStack>
+                    </Box>
+                </Box>
             ) : null}
-        </div>
+        </Box>
     );
 }

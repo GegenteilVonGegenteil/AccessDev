@@ -362,6 +362,14 @@ export function extractScreenReaderSimulation(code: string, challenge: Challenge
     const doc = parseHtmlDocument(code);
 
     if (!doc) {
+        // If running on the server (no DOM), return null so callers can avoid
+        // rendering client-only simulated output during SSR and prevent
+        // hydration mismatches. When running in the browser `document` is
+        // available and we'll continue to produce a simulated transcript.
+        if (typeof document === "undefined") {
+            return null;
+        }
+
         return {
             headingLines,
             inputLines: ["No text inputs found."],
