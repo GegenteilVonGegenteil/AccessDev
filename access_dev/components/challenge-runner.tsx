@@ -246,9 +246,9 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                     <Button
                         onClick={handleContinueToSuccess}
                         variant="solid"
-                        rounded="sm"
-                        background="var(--color-purple-600)"
-                        _hover={{ background: "var(--color-purple-700)" }}
+                        color="var(--color-background)" 
+                        bg="var(--color-lavender-400)" 
+                        _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} 
                     >
                         End Challenge
                     </Button>
@@ -269,15 +269,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                             <LuCodeXml />
                             <span>index.html</span>
                         </div>
-                        <Button
-                            type="button"
-                            onClick={handleReset}
-                            variant="outline"
-                            rounded="md"
-                            borderColor="var(--color-lavender-300)"
-                            color="var(--color-lavender-300)"
-                            _hover={{ bg: "var(--color-lavender-950)" }}
-                        >
+                        <Button type="button" onClick={handleReset} variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }}>
                             Reset
                         </Button>
                     </div>

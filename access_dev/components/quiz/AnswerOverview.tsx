@@ -13,7 +13,6 @@ type AnswerOverviewProps = {
 
 export default function AnswerOverview({ question, questionNumber, selectedOptionId, isCorrect }: AnswerOverviewProps) {
     const selectedOption = question.options.find((option) => option.id === selectedOptionId);
-    const correctOption = question.options.find((option) => option.id === question.correctOptionId);
 
     let responseCorrectText = isCorrect ? "Correct!" : "False";
     let responseColor = isCorrect ? "var(--color-mantis-400)" : "var(--color-violet-eggplant-400)";

@@ -46,12 +46,12 @@ export default function Overview({ quiz, results, score, continueHref }: Overvie
             {continueHref ? (
                 <Box width="full" display="flex" justifyContent="end" gap={4}>
                     <NextLink href="/app" passHref>
-                        <Button variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-300)", color: "var(--color-lavender-300)", bgColor: "transparent" }}>
+                        <Button variant="outline" mr={4} color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }}>
                             Go Home
                         </Button>
                     </NextLink>
                     <NextLink href={continueHref} passHref>
-                        <Button variant="solid" color="var(--color-background)" bgColor="var(--color-lavender-500)" _hover={{ bgColor: "var(--color-lavender-400)" }}>
+                        <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} >
                             Continue
                         </Button>
                     </NextLink>
@@ -60,7 +60,7 @@ export default function Overview({ quiz, results, score, continueHref }: Overvie
             ) : (
                 <Box width="full" display="flex" justifyContent="end" gap={4}>
                     <NextLink href="/app" passHref>
-                        <Button variant="solid" color="var(--color-background)" bgColor="var(--color-lavender-500)" _hover={{ bgColor: "var(--color-lavender-400)" }}>
+                        <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} >
                             Go Home
                         </Button>
                     </NextLink>

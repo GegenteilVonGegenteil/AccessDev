@@ -78,9 +78,9 @@ export default function QuestionCard({
                     onClick={onSubmit}
                     disabled={isSubmitDisabled}
                     variant="solid"
-                    color="var(--color-background)"
-                    bg="var(--color-lavender-400)"
-                    _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }}
+                    color="var(--color-background)" 
+                    bg="var(--color-lavender-400)" 
+                    _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} 
                 >
                     Submit
                 </Button>

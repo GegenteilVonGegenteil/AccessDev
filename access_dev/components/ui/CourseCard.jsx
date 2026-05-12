@@ -32,11 +32,11 @@ export default function CourseCard({ title, description, link, isLocked = false,
                             ) : null}
                         </div>
                         {isLocked ? (
-                            <Button size="lg" bg="transparent" color="var(--color-text)" variant="outline" border="1px solid var(--color-text)" opacity={0.5} cursor="not-allowed" disabled>
+                            <Button size="lg" variant="outline" mr={4} color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }}  opacity={0.5} cursor="not-allowed" disabled>
                                 {ctaLabel}
                             </Button>
                         ) : isCompleted? (
-                            <Button asChild onClick={onAction} size="lg" bg="transparent" color="var(--color-text)" variant="outline" border="1px solid var(--color-text)" _hover={{ bg: "var(--color-lavender-900)" }} _active={{ bg: "var(--color-lavender-800)" }}>
+                            <Button asChild onClick={onAction} size="lg" variant="outline" mr={4} color="var(--color-lavender-300)" borderColor="var(--color-lavender-300)" _hover={{ borderColor: "var(--color-lavender-200)", color: "var(--color-lavender-200)", bg: "transparent" }} >
                                 <a href={link}>{ctaLabel}</a>
                             </Button>
                         ) : (

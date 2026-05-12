@@ -46,7 +46,7 @@ export default function Home() {
         <Text className="text-center w-1/2" fontSize="2xl">
           Beauty is in the eye of the beholder. Usability is in the experience of the user. Time to swap seats and learn how to build for everyone.
         </Text>
-        <Button asChild gap="2" size="lg" bg="var(--color-lavender-400)" color="var(--color-lavender-950)" _hover={{ bg: "var(--color-lavender-500)" }}  _active={{ bg: "var(--color-lavender-600)" }}>
+        <Button asChild gap="2" size="lg" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }}>
           <a href="/app">
             Start Now
             <LuChevronRight aria-hidden="true" />

@@ -52,7 +52,7 @@ export default async function ChallengePreviewPage({ params }: { params: { slug:
                             Go Home
                         </Button>
                     </Link>
-                    <Link href={`/app/challenges/${challenge.slug}`}>
+                    <Link href={`/app/challenges/${challenge.slug}`} _hover={{ textDecor: "none" }}>
                         <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} >
                             Continue
                         </Button>

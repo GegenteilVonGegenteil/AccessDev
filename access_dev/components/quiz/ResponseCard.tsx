@@ -1,24 +1,16 @@
 "use client";
 
-import type { Question } from "@/consts/structures";
+import { Quiz } from "@/consts/structures";
 import { Box, Text, Button, Link } from "@chakra-ui/react";
+import { useState } from "react";
 import { MdCheck, MdClose } from "react-icons/md";
 
-type ResponseCardProps = {
-    question: Question;
-    selectedOptionId: string | null;
-    isCorrect: boolean;
-    onNext: () => void;
-    isLastQuestion?: boolean;
-};
+export default function ResponseCard({ quiz }: { quiz: Quiz }) {
+    const [isCorrect, setIsCorrect] = useState(false);
 
-export default function ResponseCard({ question, selectedOptionId, isCorrect, onNext, isLastQuestion = false }: ResponseCardProps) {
-    const selectedOption = question.options.find((option) => option.id === selectedOptionId);
-    const correctOption = question.options.find((option) => option.id === question.correctOptionId);
-
-    const responseCorrectText = isCorrect ? "Correct!" : "Incorrect";
-    const responseColor = isCorrect ? "var(--color-mantis-400)" : "var(--color-violet-eggplant-400)";
-    const responseIcon = isCorrect ? <MdCheck size={24} color="var(--color-background)" /> : <MdClose size={24} color="var(--color-background)" />;
+    let responseCorrectText = isCorrect ? "Correct!" : "False";
+    let responseColor = isCorrect ? "var(--color-mantis-400)" : "var(--color-violet-eggplant-400)";
+    let responseIcon = isCorrect ? <MdCheck size={24} color="var(--color-background)" /> : <MdClose size={24} color="var(--color-background)" />;
 
     return (
         <Box w="3xl" borderWidth="1px" borderRadius="lg" borderColor="var(--color-lavender-500)" p={8} display="flex" flexDirection="column" gap={6} alignItems="center">
@@ -35,7 +27,7 @@ export default function ResponseCard({ question, selectedOptionId, isCorrect, on
                     Your Answer:
                 </Text>
                 <Text fontSize="md">
-                    {selectedOption?.text ?? "No answer selected"}
+                    {quiz.questions[0].options.find((option) => option.id === quiz.questions[0].correctOptionId)?.text}
                 </Text>
             </Box>
             {
@@ -45,36 +37,31 @@ export default function ResponseCard({ question, selectedOptionId, isCorrect, on
                             Correct Answer:
                         </Text>
                         <Text fontSize="md" color="var(--color-mantis-100)">
-                            {correctOption?.text ?? "Unknown answer"}
+                            {quiz.questions[0].options.find((option) => option.id === quiz.questions[0].correctOptionId)?.text}
                         </Text>
                     </Box>
                 )
             }
             <Box w="full" display="flex" gap={2} flexDirection="column">
                 <Text w="full">
-                    {question.explanation}
+                    {quiz.questions[0].explanation}
                 </Text>
                 <Text w="full" display="flex" gap={2} alignItems="center">
                     Learn more
-                    {question.link?.[0] ? (
-                        <Link
-                            href={question.link[0]}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            color="var(--color-violet-eggplant-400)"
-                            variant="underline"
-                            _hover={{ color: "var(--color-violet-eggplant-600)" }}
-                        >
-                            here
-                        </Link>
-                    ) : null}
+                    <Link href={quiz.questions[0].link[0]} target="_blank"
+                        rel="noopener noreferrer"
+                        color="var(--color-violet-eggplant-400)"
+                        variant="underline"
+                        _hover={{ color: "var(--color-violet-eggplant-600)" }}>
+                        here
+                    </Link>
                 </Text>
             </Box>
             <div className="flex w-full justify-end">
-                <Button size="md" variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" onClick={onNext} _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }}>
-                    {isLastQuestion ? "Finish" : "Next"}
+                <Button size="md" variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }}>
+                    Next
                 </Button>
             </div>
         </Box>
-    );
+    )
 }
