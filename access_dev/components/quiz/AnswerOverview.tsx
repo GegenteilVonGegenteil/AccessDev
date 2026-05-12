@@ -1,11 +1,19 @@
 "use client";
 
+import type { Question } from "@/consts/structures";
 import { Box, Tag, Text } from "@chakra-ui/react";
-import { useState } from "react";
 import { MdCheck, MdClose } from "react-icons/md";
 
-export default function AnswerOverview({ id }: { id: number }) {
-    const [isCorrect, setIsCorrect] = useState(true);
+type AnswerOverviewProps = {
+    question: Question;
+    questionNumber: number;
+    selectedOptionId: string | null;
+    isCorrect: boolean;
+};
+
+export default function AnswerOverview({ question, questionNumber, selectedOptionId, isCorrect }: AnswerOverviewProps) {
+    const selectedOption = question.options.find((option) => option.id === selectedOptionId);
+    const correctOption = question.options.find((option) => option.id === question.correctOptionId);
 
     let responseCorrectText = isCorrect ? "Correct!" : "False";
     let responseColor = isCorrect ? "var(--color-mantis-400)" : "var(--color-violet-eggplant-400)";
@@ -20,7 +28,7 @@ export default function AnswerOverview({ id }: { id: number }) {
             <Box>
                 <Box display="flex" alignItems="center" gap={4}>
                     <Text fontWeight="semibold">
-                        Question {id}
+                        Question {questionNumber}
                     </Text>
                     <Tag.Root size="sm" variant="subtle" bg={responseColor} color="var(--color-background)" borderRadius="sm">
                         <Tag.Label>
@@ -29,7 +37,7 @@ export default function AnswerOverview({ id }: { id: number }) {
                     </Tag.Root>
                 </Box>
                 <Text fontSize="sm">
-                    Answer given by user goes gere
+                    Your answer: {selectedOption?.text ?? "No answer selected"}
                 </Text>
             </Box>
         </Box >
