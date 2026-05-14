@@ -141,18 +141,18 @@ export default function ChallengeSuccessPage() {
             </Box>
 
             <Box width="3xl" display="flex" justifyContent="end" gap={4}>
-                <Link href="/app">
+                <NextLink href="/app">
                     <Button variant="outline" mr={4} color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }} >
                         Go Home
                     </Button>
-                </Link>
+                </NextLink>
 
                 {nextHref ? (
-                    <Link href={nextHref}>
+                    <NextLink href={nextHref}>
                         <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} >
                             Continue
                         </Button>
-                    </Link>
+                    </NextLink>
                 ) : null}
             </Box>
         </div>

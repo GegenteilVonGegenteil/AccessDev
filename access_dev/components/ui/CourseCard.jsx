@@ -1,6 +1,7 @@
 
 import { Text, Box, Icon, Button } from "@chakra-ui/react";
 import { MdLockOutline, MdCheck, MdPlayArrow, MdArrowRightAlt } from "react-icons/md";
+import NextLink from "next/link";
 
 export default function CourseCard({ title, description, link, isLocked = false, isCompleted = false, onAction, meta }) {
     const ctaLabel = isLocked ? "Locked" : isCompleted ? "Redo" : "Start";
@@ -19,14 +20,14 @@ export default function CourseCard({ title, description, link, isLocked = false,
                             </Icon>
                         </Box>
                         <div className="flex flex-col w-full gap-1 items-start justify-center">
-                            <Text as="h2" fontSize="2xl" fontWeight="bold" color={textColor} textAlign="center">
+                            <Text as="h2" fontSize="2xl" fontWeight="bold" color={textColor}>
                                 {title}
                             </Text>
                             <Text fontSize="md" color={descriptionColor}>
                                 {isLocked ? "Complete previous challenges" : isCompleted ? null : description}
                             </Text>
                             {meta ? (
-                                <Text fontSize="sm" color={descriptionColor} textAlign="center">
+                                <Text fontSize="sm" color={descriptionColor}>
                                     {meta}
                                 </Text>
                             ) : null}
@@ -37,11 +38,11 @@ export default function CourseCard({ title, description, link, isLocked = false,
                             </Button>
                         ) : isCompleted? (
                             <Button asChild onClick={onAction} size="lg" variant="outline" mr={4} color="var(--color-lavender-300)" borderColor="var(--color-lavender-300)" _hover={{ borderColor: "var(--color-lavender-200)", color: "var(--color-lavender-200)", bg: "transparent" }} >
-                                <a href={link}>{ctaLabel}</a>
+                                <NextLink href={link}>{ctaLabel}</NextLink>
                             </Button>
                         ) : (
                             <Button asChild onClick={onAction} size="lg" bg={iconBgColor} color="var(--color-text)" _hover={{ bg: "var(--color-violet-eggplant-900)" }} _active={{ bg: "var(--color-violet-eggplant-700)" }}>
-                                <a href={link}>{ctaLabel} <MdArrowRightAlt size="xl" /></a>
+                                <NextLink href={link}>{ctaLabel} <MdArrowRightAlt size="xl" /></NextLink>
                             </Button>
                         )}
                     </Box>

@@ -21,13 +21,27 @@ export type Quiz = {
     link?: string[];
 };
 
+export type ChallengeType = "keyboard-navigation" | "screen-reader" | "contrast";
+
+export type Resource = {
+    label: string;
+    href: string;
+};
+
 export type Challenge = {
-    id: string;
+    id: number | string;
+    slug: string;
+    type: ChallengeType;
     title: string;
     subtitle: string;
+    objective: string;
     description: string;
     starterCode: string;
     solutionCode: string;
+    errors: string[];
+    hints: string[];
+    validation?: string;
+    resources: Resource[];
     link?: string[];
 };
 

@@ -14,79 +14,60 @@ const QUIZ_1_QUESTIONS: Question[] = [
     id: "quiz-1-q1",
     text: "What percentage of the world's population experiences some form of disability?",
     options: [
-      { id: "a", text: "Around 5%" },
-      { id: "b", text: "Around 16%" },
-      { id: "c", text: "Around 30%" },
-      { id: "d", text: "Around 45%" },
-    ],
-    correctOptionId: "b",
-    explanation:
-      "The WHO estimates 1 in 6 people globally experience significant disability — many of whom navigate the web daily.",
-    link: ["https://www.who.int/news-room/fact-sheets/detail/disability-and-health"],
-    },
-  {
-    id: "quiz-1-q2",
-    text: "Which of these is NOT considered a web accessibility barrier?",
-    options: [
-      { id: "a", text: "A button with no label" },
-      { id: "b", text: "Low colour contrast text" },
-      { id: "c", text: "A website with a dark theme" },
-      { id: "d", text: "A video with no captions" },
+      { id: "a", text: "Around 2%" },
+      { id: "b", text: "Around 7%" },
+      { id: "c", text: "Around 16%" },
+      { id: "d", text: "Around 32%" },
     ],
     correctOptionId: "c",
     explanation:
-      "Dark themes aren't inherently inaccessible — contrast ratio is what matters, not the colour itself. A well-designed dark theme can be highly accessible.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "The WHO estimates 1 in 6 people globally experience significant disability. Many of them use the web daily, facing barriers that could be avoided with considerate design and development.",
+    link: ["https://www.who.int/news-room/fact-sheets/detail/disability-and-health"],
+  },
+  {
+    id: "quiz-1-q2",
+    text: "What does web accessibility mean?",
+    options: [
+      { id: "a", text: "Ensuring websites meet legal compliance requirements" },
+      { id: "b", text: "Designing websites so everyone can perceive, navigate and interact with them, regardless of ability or context" },
+      { id: "c", text: "Making websites look good on mobile screens" },
+      { id: "d", text: "Ensuring websites load quickly on all devices" },
+    ],
+    correctOptionId: "b",
+    explanation:
+      "Web accessibility means ensuring anyone can perceive, understand, navigate and interact with the web. While the needs of disabled users are at its core, accessibility ultimately serves everyone. That includes someone using a screen reader, navigating by keyboard, or relying on captions in a noisy environment.",
+    link: ["https://www.w3.org/WAI/fundamentals/accessibility-intro/"],
   },
   {
     id: "quiz-1-q3",
-    text: "In the UK, which law requires digital services to be accessible?",
+    text: "What does WCAG stand for?",
     options: [
-      { id: "a", text: "GDPR" },
-      { id: "b", text: "The Equality Act 2010" },
-      { id: "c", text: "The Digital Economy Act" },
-      { id: "d", text: "The Data Protection Act" },
+      { id: "a", text: "Web Compatibility and Graphics" },
+      { id: "b", text: "Wide Content Accessibility Group" },
+      { id: "c", text: "Web Content Accessibility Guidelines" },
+      { id: "d", text: "Web Code Audit Guidelines" },
     ],
-    correctOptionId: "b",
+    correctOptionId: "c",
     explanation:
-      "The Equality Act 2010 prohibits discrimination, including through inaccessible digital services. Public sector bodies also fall under the Public Sector Bodies Accessibility Regulations.",
-  
-    link: ["https://www.equalityhumanrights.com/en/what-we-do/protected-characteristics/disability"],
-  },
-  {
-    id: "quiz-1-q4",
-    text: "Which business metric has been shown to improve when accessibility is prioritised?",
-    options: [
-      { id: "a", text: "Server performance" },
-      { id: "b", text: "SEO and search ranking" },
-      { id: "c", text: "Database query speed" },
-      { id: "d", text: "Deployment frequency" },
-    ],
-    correctOptionId: "b",
-    explanation:
-      "Accessible HTML — semantic structure, alt text, labels — is exactly what search engines index. Accessibility and SEO are deeply aligned.",
+      "WCAG stands for Web Content Accessibility Guidelines. Developed by the W3C, they are the internationally recognised standard for making web content accessible. They offer further standards for authoring tools (ATAG) and user agents (UAAG).",
     link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
   },
   {
-    id: "quiz-1-q5",
-    text: "Captions on videos were originally designed for deaf users. Who else benefits from them today?",
+    id: "quiz-1-q4",
+    text: "Which metric has been shown to improve when a website is made with accessibility in mind?",
     options: [
-      { id: "a", text: "Only non-native speakers" },
-      { id: "b", text: "Only people in noisy environments" },
-      { id: "c", text: "Only people on mobile" },
+      { id: "a", text: "User engagement and reach" },
+      { id: "b", text: "SEO and search ranking" },
+      { id: "c", text: "Page load time" },
       { id: "d", text: "All of the above" },
     ],
     correctOptionId: "d",
     explanation:
-      "This is the curb-cut effect — features built for specific disabilities end up helping everyone. Accessibility improvements are usability improvements.",
-  
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "Accessibility and good business outcomes are more aligned than most developers expect. Semantic HTML, clear structure, and descriptive labels improve Search Engine Optimization. These same qualities can also contribute to fater load times and overall user experience. And the more accessible your site is, the more people can use it!",
+    link: ["https://accessibility-test.org/blog/compliance/ada/10-key-benefits-of-making-your-website-accessible-in-2025/"],
   },
-];
-
-const QUIZ_2_QUESTIONS: Question[] = [
   {
-    id: "quiz-2-q1",
+    id: "quiz-1-q5",
     text: "What is the minimum WCAG AA contrast ratio for normal body text?",
     options: [
       { id: "a", text: "2.5:1" },
@@ -96,65 +77,82 @@ const QUIZ_2_QUESTIONS: Question[] = [
     ],
     correctOptionId: "c",
     explanation:
-      "4.5:1 is required for normal text, 3:1 for large text (18pt+). WCAG AAA raises this to 7:1 for normal text.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "4.5:1 is the minimum for normal text at WCAG AA. Large text (18pt+ or 14pt+ bold) requires 3:1. WCAG AAA raises the bar to 7:1 for normal text.",
+    link: ["https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html"],
   },
+  
+];
+
+const QUIZ_2_QUESTIONS: Question[] = [
   {
-    id: "quiz-2-q2",
-    text: "Approximately how many people worldwide have some form of colour vision deficiency?",
+    id: "quiz-2-q1",
+    text: "A designer uses red and green to indicate errors and success states. What is the problem?",
     options: [
-      { id: "a", text: "1 in 100" },
-      { id: "b", text: "1 in 12" },
-      { id: "c", text: "1 in 4" },
-      { id: "d", text: "1 in 2" },
+      { id: "a", text: "Red and green are too similar in brightness" },
+      { id: "b", text: "People with colour blindness may not be able to distinguish them" },
+      { id: "c", text: "It conflicts with WCAG contrast requirements" },
+      { id: "d", text: "It only works on certain operating systems" },
     ],
     correctOptionId: "b",
     explanation:
-      "Around 300 million people globally — roughly 8% of men and 0.5% of women — have some form of colour vision deficiency.",
- 
-    link: ["https://www.colourblindawareness.org/colour-blindness/"],},
-  {
-    id: "quiz-2-q3",
-    text: "A user increases their browser font size to 200%. What should happen to your layout?",
-    options: [
-      { id: "a", text: "It should stay exactly the same" },
-      { id: "b", text: "It should break gracefully" },
-      { id: "c", text: "It should reflow without horizontal scrolling" },
-      { id: "d", text: "It should show a mobile view" },
-    ],
-    correctOptionId: "c",
-    explanation:
-      "WCAG 1.4.4 requires text to be resizable up to 200% without loss of content or functionality. Use relative units like rem and em rather than fixed px values.",
-  
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "Around 300 Million people worldwide (1 in 12 men and 1 in 200 women) have some form of colour vision deficiency, with red-green being the most common. Using colour as the only way to convey meaning, like error or success states, excludes these users entirely. A simple fix is pairing colour with an icon, label, or pattern.",
+    link: ["https://www.w3.org/WAI/WCAG21/Understanding/use-of-color.html"],
   },
   {
-    id: "quiz-2-q4",
+    id: "quiz-2-q2",
+    text: "How many disabled users rely on screen readers?",
+    options: [
+      { id: "a", text: "Around 20%" },
+      { id: "b", text: "Around 50%" },
+      { id: "c", text: "Around 70%" },
+      { id: "d", text: "Around 90%" },
+    ],
+    correctOptionId: "d",
+    explanation:
+      "According to the WebAIM Screen Reader User Survey, around 87.6% of disabled users rely on screen readers. This groups includes people with visual impairments, but also many users with other disabilities who find screen readers helpful for navigating the web.",
+    link: ["https://www.accessibilitychecker.org/blog/screen-readers/"],
+  },
+  {
+    id: "quiz-2-q3",
     text: "A purely decorative image should have which alt value?",
     options: [
       { id: "a", text: "A description of what it looks like" },
       { id: "b", text: "The filename" },
-      { id: "c", text: 'An empty string alt=""' },
+      { id: "c", text: 'An empty string: alt=""' },
       { id: "d", text: "No alt attribute at all" },
     ],
     correctOptionId: "c",
     explanation:
-      'alt="" tells screen readers to skip the image entirely. Omitting alt altogether causes some readers to announce the filename instead, which is meaningless noise.',
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      'alt="" tells screen readers to skip the image entirely. Omitting the alt attribute altogether causes some readers to announce the filename instead. This adds needless noise to users of assistive technology',
+    link: ["https://www.w3.org/WAI/tutorials/images/decorative/"],
   },
   {
-    id: "quiz-2-q5",
+    id: "quiz-2-q4",
     text: "A form input has a visible label next to it, but no <label> element in the HTML. What's the problem?",
     options: [
-      { id: "a", text: "Nothing — if it looks right, it works" },
+      { id: "a", text: "Nothing. If it looks right, it works" },
       { id: "b", text: "Screen readers won't associate the label with the input" },
       { id: "c", text: "The form won't submit" },
       { id: "d", text: "It will fail CSS validation" },
     ],
     correctOptionId: "b",
     explanation:
-      "Visual proximity means nothing to assistive technology. The <label> element — or aria-labelledby — creates the programmatic link a screen reader needs. This is exactly what the next challenge is about.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "Visual proximity means nothing to assistive technology. The <label> element (or aria-labelledby) creates the programmatic link a screen reader needs to announce what a field is for.",
+    link: ["https://www.w3.org/WAI/tutorials/forms/labels/"],
+  },
+  {
+    id: "quiz-2-q5",
+    text: "A form shows an error message when submission fails, but the user is on a screen reader. What would happen?",
+    options: [
+      { id: "a", text: "Error messages are always read automatically" },
+      { id: "b", text: "Screen readers detect DOM changes and announce them" },
+      { id: "c", text: "If not properly marked, the error is never announced" },
+      { id: "d", text: "The form won't work at all" },
+    ],
+    correctOptionId: "c",
+    explanation:
+      "Screen readers only announce content changes if the element has aria-live, an alert role, or if focus is explicitly moved to the message. Without these, the user struggles to find the error message or may not even know it exists.",
+    link: ["https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA19"],
   },
 ];
 
@@ -170,126 +168,112 @@ const QUIZ_3_QUESTIONS: Question[] = [
     ],
     correctOptionId: "b",
     explanation:
-      "Placeholder text is not a label substitute — it disappears on input and is often low contrast. Without a label, users have no reliable way to know what a field is for.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "Placeholder text is not a label substitute. It disappears on input and is often low contrast. Without a label, screen reader users have no reliable way to know what a field is for.",
+    link: ["https://www.w3.org/WAI/tutorials/forms/labels/"],
   },
   {
     id: "quiz-3-q2",
-    text: "A form shows an error message when submission fails, but the user is on a screen reader. What's the problem?",
-    options: [
-      { id: "a", text: "Error messages are always read automatically" },
-      { id: "b", text: "Nothing — screen readers detect DOM changes" },
-      { id: "c", text: "Without aria-live or focus management, the error is never announced" },
-      { id: "d", text: "The form won't work at all" },
-    ],
-    correctOptionId: "c",
-    explanation:
-      "Screen readers only announce content changes if the element has aria-live, or if focus is explicitly moved to the message. Silent errors are invisible errors.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
-  },
-  {
-    id: "quiz-3-q3",
     text: 'What is the difference between aria-live="polite" and role="alert"?',
     options: [
       { id: "a", text: "There is no difference" },
-      { id: "b", text: "polite waits for the user to finish their current action; alert interrupts immediately" },
+      { id: "b", text: "polite waits for the user to finish their current action before announcing. Alert interrupts immediately" },
       { id: "c", text: "polite is for errors, alert is for success messages" },
-      { id: "d", text: "role=alert only works in forms" },
+      { id: "d", text: 'role="alert" only works in forms' },
     ],
     correctOptionId: "b",
     explanation:
-      'For critical errors like form validation failures, role="alert" (or aria-live="assertive") ensures immediate announcement. polite is better for non-urgent status updates.',
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      'For critical errors like form validation failures, role="alert" (or aria-live="assertive") ensures the message is announced immediately. aria-live="polite" is better for non-urgent updates that can wait until the user is idle.',
+    link: ["https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions"],
   },
   {
-    id: "quiz-3-q4",
-    text: "Plain language and clear layout primarily helps which group?",
+    id: "quiz-3-q3",
+    text: "Beyond screen reader users, who else benefits from a well-structured, semantic HTML layout?",
     options: [
-      { id: "a", text: "Only users with dyslexia" },
-      { id: "b", text: "Only non-native speakers" },
-      { id: "c", text: "Only users with cognitive disabilities" },
-      { id: "d", text: "All of the above" },
+      { id: "a", text: "No one. Semantic HTML is specifically for screen readers" },
+      { id: "b", text: "Keyboard-only users, since landmarks and headings aid navigation" },
+      { id: "c", text: "Users with cognitive disabilities, since clear structure aids comprehension" },
+      { id: "d", text: "Both b and c, but also search engines, voice assistants, and users in general" },
     ],
     correctOptionId: "d",
     explanation:
-      "Cognitive accessibility improvements — clear headings, plain language, consistent layout — have the widest reach of almost any accessibility measure.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "Semantic, well-structured HTML benefits far more than screen reader users. Keyboard users rely on landmarks and headings to navigate efficiently. Users with cognitive disabilities benefit from predictable, clearly structured content. Search engines and voice assistants also parse semantic structure to understand page content.",
+    link: ["https://www.w3.org/WAI/fundamentals/accessibility-usability-inclusion/"],
+  },
+  {
+    id: "quiz-3-q4",
+    text: "What are alternative ways to navigate a website besides scrolling and clicking?",
+    options: [
+      { id: "a", text: "There are no widely-used alternatives" },
+      { id: "b", text: "Keyboard navigation only" },
+      { id: "c", text: "Keyboard navigation and voice control" },
+      { id: "d", text: "Keyboard, voice control and eye tracking" },
+    ],
+    correctOptionId: "d",
+    explanation:
+      "Many users navigate entirely by keyboard, voice control or eye tracking. All of these rely on well-structured, keyboard-accessible interfaces.",
+    link: ["https://www.w3.org/WAI/people-use-web/tools-techniques/input/"],
   },
   {
     id: "quiz-3-q5",
-    text: 'What is a "skip to main content" link and who benefits from it?',
+    text: "What determines the order in which interactive elements are focused when navigating by keyboard?",
     options: [
-      { id: "a", text: "A design pattern for mobile" },
-      { id: "b", text: "A link that lets users bypass repeated navigation" },
-      { id: "c", text: "An SEO technique" },
-      { id: "d", text: "A React routing pattern" },
+      { id: "a", text: "Their visual position on the page" },
+      { id: "b", text: "The order CSS rules are declared" },
+      { id: "c", text: "Their DOM order, which can be modified using tabindex" },
+      { id: "d", text: "The browser's built-in accessibility settings" },
     ],
-    correctOptionId: "b",
-    explanation:
-      "Without it, keyboard and screen reader users must tab through every nav item on every page load. It's one of the simplest wins in accessibility — and it leads directly into what the next challenge is about.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+    correctOptionId: "c",
+    explanation: `
+    By default, focus moves through interactive elements in the order they appear in the HTML, not how they look on screen. Developers can use tabindex to modify this order. Setting tabindex="0" adds any element to the natural tab flow, while tabindex="-1" removes it. Positive values like tabindex="1" force a specific order. However, this can lead to a tab sequence that doesn't match users expectations and can be hard to maintain`,
+    link: ["https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html"],
   },
 ];
 
 const QUIZ_4_QUESTIONS: Question[] = [
   {
     id: "quiz-4-q1",
-    text: "A developer sets tabindex=\"3\" on a button to control focus order. What's the problem?",
-    options: [
-      { id: "a", text: "Nothing — tabindex is designed for this" },
-      { id: "b", text: "It removes the element from focus order" },
-      { id: "c", text: "It creates a fragile, unpredictable tab sequence that breaks when the page changes" },
-      { id: "d", text: "It only works in Chrome" },
-    ],
-    correctOptionId: "c",
-    explanation:
-      'Positive tabindex values override the natural DOM order globally, which becomes impossible to maintain at scale. The correct fix is almost always to reorder the DOM itself, using tabindex="0" only when you need to add a non-interactive element into the tab flow.',
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
-  },
-  {
-    id: "quiz-4-q2",
     text: "A <div> has an onClick handler. What critical things are missing for keyboard users?",
     options: [
-      { id: "a", text: "Nothing — onClick fires on Enter too" },
-      { id: "b", text: "Focus, keyboard event handling, and implicit role — it won't receive Tab focus or respond to Enter/Space" },
+      { id: "a", text: "Nothing. onClick is called on Enter too" },
+      { id: "b", text: "Focus, keyboard event handling, and an implicit role." },
       { id: "c", text: "Only an aria-label" },
       { id: "d", text: "Only a visible focus style" },
     ],
     correctOptionId: "b",
     explanation:
-      "Native <button> elements give you focusability, Enter/Space activation, and an implicit ARIA role for free. A <div> gives you none of these. Always prefer the semantically correct element.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "Native <button> elements give you focusability, Enter/Space activation, and an implicit ARIA role. A <div> gives you none of these. Always prefer the semantically correct HTML element.",
+    link: ["https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html"],
   },
   {
-    id: "quiz-4-q3",
+    id: "quiz-4-q2",
     text: "What is a keyboard trap, and when is one acceptable?",
     options: [
       { id: "a", text: "When Tab doesn't work at all" },
-      { id: "b", text: "When focus is locked inside a component — never acceptable" },
-      { id: "c", text: "When focus is locked inside a component — acceptable in modals and dialogs" },
+      { id: "b", text: "When focus is locked inside a component. Never acceptable" },
+      { id: "c", text: "When focus is locked inside a component. Acceptable in modals and dialogs" },
       { id: "d", text: "When a page has too many interactive elements" },
     ],
     correctOptionId: "c",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
     explanation:
-      "WCAG 2.1.2 prohibits keyboard traps except where trapping focus is intentional and escapable — such as open modals, where users shouldn't be able to Tab behind the dialog.",
+      "WCAG 2.1.2 prohibits keyboard traps except where trapping focus is intentional and the user can escape (e.g., by pressing the Escape key), such as open modals, where users shouldn't be able to Tab behind the dialog.",
+    link: ["https://www.w3.org/WAI/WCAG21/Understanding/no-keyboard-trap.html"],
   },
   {
-    id: "quiz-4-q4",
-    text: "Automated tools like axe-core can catch what proportion of accessibility issues?",
+    id: "quiz-4-q3",
+    text: "Automated tools can catch what proportion of accessibility issues?",
     options: [
-      { id: "a", text: "Almost all of them" },
-      { id: "b", text: "About 70%" },
-      { id: "c", text: "Around 30–40%" },
+      { id: "a", text: "About 80-90%" },
+      { id: "b", text: "About 50-70%" },
+      { id: "c", text: "Around 20–40%" },
       { id: "d", text: "Less than 10%" },
     ],
     correctOptionId: "c",
     explanation:
-      "Automated tools catch structural issues reliably but can't assess whether alt text is meaningful, whether focus order makes logical sense, or whether content is understandable. Manual testing — including with real assistive technology — is irreplaceable.",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
+      "While automated tools (e.g. axe-core) are a great tool to use, their coverage is limited. They can catch structural issues reliably but can't assess whether alt text is meaningful, whether focus order makes logical sense, or whether content is understandable. Manual testing, including with real assistive technology, is irreplaceable. Using multiple tools and methods is the best way to catch a wide range of issues.",
+    link: ["https://www.sitelint.com/blog/accessibility-automated-website-scans-and-how-much-can-they-catch"],
   },
   {
-    id: "quiz-4-q5",
+    id: "quiz-4-q4",
     text: "What is the single most effective time to address accessibility in a project?",
     options: [
       { id: "a", text: "During QA testing" },
@@ -298,37 +282,52 @@ const QUIZ_4_QUESTIONS: Question[] = [
       { id: "d", text: "Before launch" },
     ],
     correctOptionId: "c",
-    link: ["https://www.w3.org/WAI/standards-guidelines/wcag/"],
     explanation:
-      "Retrofitting accessibility is significantly more expensive than building it in from the start. The issues you just fixed would take minutes in a new project — and hours in a legacy codebase.",
+      "Retrofitting accessibility is significantly more expensive than building it in from the start. The issues you just fixed would take minutes in a new project, but hours in a legacy codebase.",
+    link: ["https://www.w3.org/WAI/business-case/"],
+  },
+  {
+    id: "quiz-4-q5",
+    text: "According to the 2025 WebAIM Million report, what percentage of the top 1 million home pages had detectable accessibility failures?",
+    options: [
+      { id: "a", text: "Around 50%" },
+      { id: "b", text: "Around 70%" },
+      { id: "c", text: "Around 85%" },
+      { id: "d", text: "Around 95%" },
+    ],
+    correctOptionId: "d",
+    explanation:
+      "In 2026, 95.9% of the top 1 million home pages had detectable WCAG failures, averaging 56.1 accessibility errors per page. It means the overwhelming majority of the web is failing a significant portion of its users, every day. You have already taken a great step in becoming part of the solution.",
+    link: ["https://webaim.org/projects/million/"],
   },
 ];
 
 export const quizzes = [
   createQuiz(
     "quiz-1",
-    "Why Accessibility Matters",
-    "Before we dive in, let's establish why accessibility matters — for users, for businesses, and for the web as a whole.",
+    "Introductory Quiz",
+    "What is web accessibility and why does it matter?",
     QUIZ_1_QUESTIONS
   ),
   createQuiz(
     "quiz-2",
-    "Perception & Visual Accessibility",
-    "Let's reflect on what you just experienced and broaden your understanding of visual accessibility — including what comes next.",
+    "Quiz 2",
+    "Reflection on colours and how to accommodate screen reader users.",
     QUIZ_2_QUESTIONS
   ),
   createQuiz(
     "quiz-3",
-    "Semantics & Assistive Technology",
-    "Let's unpack what you just experienced — and lay the groundwork for the keyboard navigation challenge ahead.",
+    "Quiz 3",
+    "Reflection on screen reader user experience and keyboard navigation.",
     QUIZ_3_QUESTIONS
   ),
   createQuiz(
     "quiz-4",
-    "Putting It All Together",
-    "You've completed all three challenges. Let's zoom out and make sure everything connects — technically, legally, and professionally.",
+    "Quiz 4",
+    "Reflection on keyboard navigation and the state of web accessibility in 2025.",
     QUIZ_4_QUESTIONS
   ),
+
 ];
 
 export const quizzesBySlug = quizzes.reduce<Record<string, Quiz>>((accumulator, quiz) => {

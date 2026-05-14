@@ -2,6 +2,40 @@ import type { Course, CourseStep } from "./structures";
 import { getQuizBySlug } from "./quizzes";
 import { getChallengeBySlug } from "./challenges";
 
+function getChallengeStep(
+  id: string,
+  slug: string,
+  fallbackTitle: string,
+  fallbackSubtitle: string
+): CourseStep {
+  const challenge = getChallengeBySlug(slug);
+
+  if (challenge) {
+    return {
+      ...challenge,
+      id,
+      link: [`/app/challenges/${challenge.slug}/preview`],
+    } as CourseStep;
+  }
+
+  // Fallback minimal challenge-shaped object for safety
+  return {
+    id,
+    slug,
+    type: "contrast",
+    title: fallbackTitle,
+    subtitle: fallbackSubtitle,
+    objective: "",
+    description: "",
+    starterCode: "",
+    solutionCode: "",
+    errors: [],
+    hints: [],
+    resources: [],
+    link: [`/app/challenges/${slug}/preview`],
+  } as CourseStep;
+}
+
 export const course: Course = {
   steps: getCourseSteps(),
 };
@@ -10,48 +44,30 @@ export function getCourseSteps(): CourseStep[] {
   return [
     getQuizBySlug("quiz-1")!,
 
-    (function () {
-      const ch = getChallengeBySlug("contrast");
-      return {
-        id: "challenge-1",
-        title: ch?.title ?? "Contrast Challenge",
-        subtitle: ch?.subtitle ?? "Ensure your webpage has sufficient color contrast",
-        description: ch?.description ?? "",
-        starterCode: ch?.starterCode ?? "",
-        solutionCode: "",
-        link: [`/app/challenges/${ch?.slug ?? "contrast"}/preview`],
-      };
-    })(),
+    getChallengeStep(
+      "challenge-1",
+      "contrast",
+      "Contrast Challenge",
+      "Ensure sufficient color contrast"
+    ),
 
     getQuizBySlug("quiz-2")!,
 
-    (function () {
-      const ch = getChallengeBySlug("screen-reader");
-      return {
-        id: "challenge-2",
-        title: ch?.title ?? "Screen Reader Challenge",
-        subtitle: ch?.subtitle ?? "Make sure your website gives usable screen reader output",
-        description: ch?.description ?? "",
-        starterCode: ch?.starterCode ?? "",
-        solutionCode: "",
-        link: [`/app/challenges/${ch?.slug ?? "screen-reader"}/preview`],
-      };
-    })(),
+    getChallengeStep(
+      "challenge-2",
+      "screen-reader",
+      "Screen Reader Challenge",
+      "Make sure your website gives usable screen reader output"
+    ),
 
     getQuizBySlug("quiz-3")!,
 
-    (function () {
-      const ch = getChallengeBySlug("keyboard-navigation");
-      return {
-        id: "challenge-3",
-        title: ch?.title ?? "Keyboard Navigation Challenge",
-        subtitle: ch?.subtitle ?? "Make a simple webpage navigable using only the keyboard",
-        description: ch?.description ?? "",
-        starterCode: ch?.starterCode ?? "",
-        solutionCode: "",
-        link: [`/app/challenges/${ch?.slug ?? "keyboard-navigation"}/preview`],
-      };
-    })(),
+    getChallengeStep(
+      "challenge-3",
+      "keyboard-navigation",
+      "Keyboard Navigation Challenge",
+      "Make a simple webpage navigable using only the keyboard"
+    ),
     getQuizBySlug("quiz-4")!,
   ];
 }

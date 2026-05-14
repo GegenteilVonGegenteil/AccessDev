@@ -1,24 +1,4 @@
-export type ChallengeType = "keyboard-navigation" | "screen-reader" | "contrast";
-
-export type Resource = {
-  label: string;
-  href: string;
-};
-
-export type ChallengeDefinition = {
-  id: number;
-  slug: string;
-  title: string;
-  subtitle: string;
-  type: ChallengeType;
-  description: string;
-  objective: string;
-  starterCode: string;
-  errors: string[];
-  hints: string[];
-  validation?: string;
-  resources: Resource[];
-};
+import type { Challenge, ChallengeType, Resource } from "./structures";
 
 const HTML_BOILERPLATE = (title: string, style: string, body: string) => `<!doctype html>
 <html lang="en">
@@ -40,7 +20,7 @@ ${body}
 </html>`;
 
 const createChallenge = (
-  id: number,
+  id: number | string,
   slug: string,
   title: string,
   subtitle: string,
@@ -54,7 +34,7 @@ const createChallenge = (
     validation?: string;
     resources: Resource[];
   }
-): ChallengeDefinition => ({
+): Challenge => ({
   id,
   slug,
   title,
@@ -62,10 +42,15 @@ const createChallenge = (
   type,
   description,
   objective,
-  ...config,
+  starterCode: config.starterCode,
+  errors: config.errors,
+  hints: config.hints,
+  validation: config.validation,
+  resources: config.resources,
+  solutionCode: "",
 });
 
-export const challenges: ChallengeDefinition[] = [
+export const challenges: Challenge[] = [
   createChallenge(
     1,
     "contrast",
@@ -111,8 +96,8 @@ export const challenges: ChallengeDefinition[] = [
         color: #fbf8ff;
       }`,
         `    <section class="card">
-      <h1 id="sample-title" class="sample-title">Contrast Demo</h1>
-      <p id="sample-body" class="sample-body">Improve the contrast to make this easier to read.</p>
+      <h1 id="sample-title" class="sample-title">Sample Heading</h1>
+      <p id="sample-body" class="sample-body">Can you read this text?</p>
       <button id="sample-button" class="sample-button" type="button">Continue</button>
     </section>`
       ),
@@ -186,9 +171,9 @@ function contrastRatio(fgRGB, bgRGB){
         <p>Fill out the form below.</p>
 
         <form>
-          <input id="name" type="text" placeholder="Full name" />
+          <input id="name" type="text" placeholder="First name" />
 
-          <input id="nickname" type="text" placeholder="Nickname" />
+          <input id="last-name" type="text" placeholder="Last name" />
 
           <input id="email" type="email" placeholder="Email" />
 
@@ -237,7 +222,7 @@ function contrastRatio(fgRGB, bgRGB){
     3,
     "keyboard-navigation",
     "Keyboard Navigation",
-    "Keyboard accessibility (tab order, focusable controls)",
+    "Tab order, focusability and keyboard traps",
     "keyboard-navigation",
     "For this exercise, you can only interact with the website preview by using keyboard navigation. All but one button show issues dirsupting the tab order or focusability.",
     "Make all interactive elements focusable and ensure a logical tab order. Remove any keyboard traps and use semantically correct elements for interactive controls.",
@@ -254,9 +239,13 @@ function contrastRatio(fgRGB, bgRGB){
         color: #17101f;
       }
 
+      h2 {
+        marginBottom: 6px;
+      }
+      
       .container {
         display: grid;
-        gap: 12px;
+        gap: 8px;
         justify-items: center;
         padding: 16px;
       }
@@ -274,8 +263,8 @@ function contrastRatio(fgRGB, bgRGB){
       }
       nav a { margin-right: 12px }`,
         `    <main class="container">
-      <h2>Keyboard Navigation</h2>
-      <p>Find and activate the target using Tab. The page contains focus-order and semantics problems.</p>
+      <h2>Keyboard Navigation Examples</h2>
+      <p>Click window and press Tab to see each buttons tab behavior.</p>
 
       <button type="button" class="clickable">Natural Tab Order</button>
       <button id="target" type="button" tabindex="-1" class="clickable">Negative tabindex</button>

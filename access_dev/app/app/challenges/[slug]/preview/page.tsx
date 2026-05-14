@@ -1,6 +1,7 @@
 import { Box, Text, Link, Button } from "@chakra-ui/react";
 import { notFound } from "next/navigation";
 import { getChallengeBySlug } from "@/consts/challenges";
+import NextLink from "next/link";
 
 export default async function ChallengePreviewPage({ params }: { params: { slug: string } | Promise<{ slug: string }> }) {
     const { slug } = await params;
@@ -47,16 +48,16 @@ export default async function ChallengePreviewPage({ params }: { params: { slug:
                 )}
 
                 <Box width="full" display="flex" justifyContent="end">
-                    <Link href={"/app"}>
+                    <NextLink href={"/app"}>
                         <Button variant="outline" mr={4} color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }} >
                             Go Home
                         </Button>
-                    </Link>
-                    <Link href={`/app/challenges/${challenge.slug}`} _hover={{ textDecor: "none" }}>
+                    </NextLink>
+                    <NextLink href={`/app/challenges/${challenge.slug}`}>
                         <Button variant="solid" color="var(--color-background)" bg="var(--color-lavender-400)" _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} >
                             Continue
                         </Button>
-                    </Link>
+                    </NextLink>
                 </Box>
             </Box>
         </div>

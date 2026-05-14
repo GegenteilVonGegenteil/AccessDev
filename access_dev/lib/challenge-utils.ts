@@ -3,7 +3,7 @@
  * Extracted from challenge-runner.tsx to reduce component complexity.
  */
 
-import type { ChallengeDefinition } from "@/consts/challenges";
+import type { Challenge } from "@/consts/structures";
 
 // ============================================================================
 // HTML Parsing & DOM Utilities
@@ -327,7 +327,7 @@ export function evaluateScreenReader(doc: Document): boolean[] {
     return [allInputsHaveAssociations, buttonHasGoodName, statusHasLiveRegion];
 }
 
-export function evaluateChallengeIssues(challenge: ChallengeDefinition, code: string): boolean[] {
+export function evaluateChallengeIssues(challenge: Challenge, code: string): boolean[] {
     const doc = parseHtmlDocument(code);
 
     if (!doc) {
@@ -354,7 +354,7 @@ export function evaluateChallengeIssues(challenge: ChallengeDefinition, code: st
 // Screen Reader Simulation
 // ============================================================================
 
-export function extractScreenReaderSimulation(code: string, challenge: ChallengeDefinition) {
+export function extractScreenReaderSimulation(code: string, challenge: Challenge) {
     const headingLines: string[] = [];
     const inputLines: string[] = [];
     const buttonLines: string[] = [];
@@ -376,8 +376,6 @@ export function extractScreenReaderSimulation(code: string, challenge: Challenge
             buttonLines: ["No buttons found."],
             liveText: "No status region found.",
             warnings,
-            introTitle: challenge.previewTitle,
-            introDescription: challenge.previewDescription,
         };
     }
 
@@ -413,7 +411,7 @@ export function extractScreenReaderSimulation(code: string, challenge: Challenge
         if (accessibleName.length > 0) {
             inputLines.push(`${fieldPrefix}: ${accessibleName}`);
         } else {
-            inputLines.push(`${fieldPrefix}: unlabeled`);
+            inputLines.push(`${fieldPrefix}: edit text`);
             warnings.push("At least one text input has no accessible label.");
         }
     }
@@ -455,8 +453,6 @@ export function extractScreenReaderSimulation(code: string, challenge: Challenge
         buttonLines,
         liveText,
         warnings: [],
-        introTitle: challenge.previewTitle,
-        introDescription: challenge.previewDescription,
     };
 }
 
@@ -464,7 +460,7 @@ export function extractScreenReaderSimulation(code: string, challenge: Challenge
 // Preview Document Generation
 // ============================================================================
 
-export function getPreviewDoc(challenge: ChallengeDefinition, code: string): string {
+export function getPreviewDoc(challenge: Challenge, code: string): string {
     if (challenge.type === "keyboard-navigation") {
         return code.replace(
             "</head>",

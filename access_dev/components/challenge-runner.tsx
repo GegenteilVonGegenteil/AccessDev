@@ -6,7 +6,7 @@ import { basicSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { FiAlertTriangle, FiEye, FiInfo, FiX } from "react-icons/fi";
-import type { ChallengeDefinition } from "@/consts/challenges";
+import type { Challenge } from "@/consts/structures";
 import {
     Box,
     Button,
@@ -30,7 +30,7 @@ import {
 import { markChallengeCompleted } from "@/lib/progress";
 
 type ChallengeRunnerProps = {
-    challenge: ChallengeDefinition;
+    challenge: Challenge;
 };
 
 type ContrastTargetOption = {
@@ -338,7 +338,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                             <VStack align="stretch" gap={3} p={3} flex="1" minH={0} bg="var(--color-lavender-50)" height="100%">
                                 <Box flex="1" minH={0} overflow="auto" borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="xl" p={4} bg="var(--color-background)">
                                     <Text fontFamily="var(--font-mono)" fontSize="sm" textTransform="uppercase" letterSpacing="0.05em" color="var(--color-lavender-100)" mb={3}>
-                                        Simulated Screen Reader Output
+                                        Screen Reader Output
                                     </Text>
                                     <VStack align="stretch" gap={2}>
                                         {screenReaderSimulation.headingLines.map((line) => (
