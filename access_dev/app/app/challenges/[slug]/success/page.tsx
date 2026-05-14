@@ -44,7 +44,7 @@ export default function ChallengeSuccessPage() {
         const completedStep = course.steps.find((step) => step.link?.[0] === currentPath);
 
         if (completedStep) {
-            markStepCompleted(completedStep.id);
+            markStepCompleted(String(completedStep.id));
         }
     }, [challenge]);
 

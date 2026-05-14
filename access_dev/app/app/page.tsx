@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { VStack, HStack, Text, Box, ProgressRoot, ProgressTrack, ProgressRange} from "@chakra-ui/react";
 import { course } from "@/consts/course";
 import CourseCard from "@/components/ui/CourseCard";
-import { getCourseProgress, markStepCompleted, getChallengesProgress, getQuizzesProgress } from "@/lib/progress";
+import { getCourseProgress, getChallengesProgress, getQuizzesProgress } from "@/lib/progress";
 import { getChallengeBySlug } from "@/consts/challenges";
 
 function getStepTitle(step: (typeof course.steps)[number]): string {
@@ -49,10 +49,7 @@ export default function Home() {
         );
     }
 
-    const handleStepAction = (stepId: string) => {
-        const updated = markStepCompleted(stepId);
-        setCompletedStepIds(updated.completedStepIds);
-    };
+    // actions navigate to the step; completion is recorded when the user actually finishes the step
 
     return (
         <>
@@ -74,8 +71,9 @@ export default function Home() {
                 <Text as="h1" fontSize="3xl" fontWeight="bold" mb={8} w="3/4"> Course Plan </Text>
                 <div className="flex gap-6 flex-col items-center justify-center w-3/4">
                     {coursePlan.steps.map((step, index) => {
-                        const isCompleted = completedSet.has(step.id);
-                        const previousStepId = index > 0 ? coursePlan.steps[index - 1].id : null;
+                        const stepIdStr = String(step.id);
+                        const isCompleted = completedSet.has(stepIdStr);
+                        const previousStepId = index > 0 ? String(coursePlan.steps[index - 1].id) : null;
                         const isLocked = previousStepId ? !completedSet.has(previousStepId) : false;
                         const stepLink = step.link?.[0] ?? "#";
 
@@ -108,13 +106,13 @@ export default function Home() {
 
                         return (
                             <CourseCard
-                                key={step.id}
+                                key={stepIdStr}
                                 title={getStepTitle(step)}
                                 description={getStepDescription(step)}
                                 link={stepLink}
                                 isLocked={isLocked}
                                 isCompleted={isCompleted}
-                                onAction={() => handleStepAction(step.id)}
+                                onAction={() => {}}
                                 meta={meta}
                             />
                         );

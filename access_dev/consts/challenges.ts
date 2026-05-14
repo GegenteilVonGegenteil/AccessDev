@@ -20,7 +20,7 @@ ${body}
 </html>`;
 
 const createChallenge = (
-  id: number | string,
+  id: string,
   slug: string,
   title: string,
   subtitle: string,
@@ -52,7 +52,7 @@ const createChallenge = (
 
 export const challenges: Challenge[] = [
   createChallenge(
-    1,
+    "1",
     "contrast",
     "Color Contrast",
     "Color Contrast Ratio Requirements",
@@ -135,7 +135,7 @@ function contrastRatio(fgRGB, bgRGB){
     }
   ),
   createChallenge(
-    2,
+    "2",
     "screen-reader",
     "Screen Reader",
     "Adjust form labels and states for proper screen reader output",
@@ -219,7 +219,7 @@ function contrastRatio(fgRGB, bgRGB){
     }
   ),
   createChallenge(
-    3,
+    "3",
     "keyboard-navigation",
     "Keyboard Navigation",
     "Tab order, focusability and keyboard traps",
