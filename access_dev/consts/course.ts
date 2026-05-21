@@ -18,7 +18,6 @@ function getChallengeStep(
     } as CourseStep;
   }
 
-  // Fallback minimal challenge-shaped object for safety
   return {
     id,
     slug,

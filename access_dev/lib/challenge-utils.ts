@@ -1,13 +1,4 @@
-/**
- * Utility functions for challenge validation and HTML/CSS parsing.
- * Extracted from challenge-runner.tsx to reduce component complexity.
- */
-
 import type { Challenge } from "@/consts/structures";
-
-// ============================================================================
-// HTML Parsing & DOM Utilities
-// ============================================================================
 
 export function parseHtmlDocument(code: string): Document | null {
     if (typeof document === "undefined") {
@@ -29,10 +20,6 @@ export function stripTags(value: string): string {
         .replace(/\s+/g, " ")
         .trim();
 }
-
-// ============================================================================
-// Color Parsing Utilities
-// ============================================================================
 
 export function parseHexColor(value: string): number[] | null {
     const clean = value.trim().replace("#", "");
@@ -70,10 +57,6 @@ export function parseCssColor(value: string): number[] | null {
 
     return null;
 }
-
-// ============================================================================
-// CSS Parsing & Rule Extraction
-// ============================================================================
 
 export function extractCssText(code: string): string {
     const matches = code.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi);
@@ -124,10 +107,6 @@ export function resolveColorFromCss(
 
     return null;
 }
-
-// ============================================================================
-// Contrast Calculation
-// ============================================================================
 
 export function luminance(rgb: number[]): number {
     const channels = rgb.map((channel) => {
@@ -240,10 +219,6 @@ export function setContrastColorTargetValue(code: string, target: ContrastColorT
     return code.replace(styleMatch[2] ?? "", nextCssText);
 }
 
-// ============================================================================
-// Challenge-Specific Validation
-// ============================================================================
-
 export function evaluateKeyboardNavigation(doc: Document): boolean[] {
     const target = doc.getElementById("target");
     const targetTabindex = target?.getAttribute("tabindex");
@@ -350,10 +325,6 @@ export function evaluateChallengeIssues(challenge: Challenge, code: string): boo
     return [titleContrastPass, bodyContrastPass, buttonContrastPass];
 }
 
-// ============================================================================
-// Screen Reader Simulation
-// ============================================================================
-
 export function extractScreenReaderSimulation(code: string, challenge: Challenge) {
     const headingLines: string[] = [];
     const inputLines: string[] = [];
@@ -362,10 +333,6 @@ export function extractScreenReaderSimulation(code: string, challenge: Challenge
     const doc = parseHtmlDocument(code);
 
     if (!doc) {
-        // If running on the server (no DOM), return null so callers can avoid
-        // rendering client-only simulated output during SSR and prevent
-        // hydration mismatches. When running in the browser `document` is
-        // available and we'll continue to produce a simulated transcript.
         if (typeof document === "undefined") {
             return null;
         }
@@ -455,10 +422,6 @@ export function extractScreenReaderSimulation(code: string, challenge: Challenge
         warnings: [],
     };
 }
-
-// ============================================================================
-// Preview Document Generation
-// ============================================================================
 
 export function getPreviewDoc(challenge: Challenge, code: string): string {
     if (challenge.type === "keyboard-navigation") {
