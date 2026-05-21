@@ -192,7 +192,7 @@ const QUIZ_3_QUESTIONS: Question[] = [
       { id: "a", text: "No one. Semantic HTML is specifically for screen readers" },
       { id: "b", text: "Keyboard-only users, since landmarks and headings aid navigation" },
       { id: "c", text: "Users with cognitive disabilities, since clear structure aids comprehension" },
-      { id: "d", text: "Both b and c, but also search engines, voice assistants, and users in general" },
+      { id: "d", text: "Keyboard users and users with cognitive disabilities, but also search engines, voice assistants, and users in general" },
     ],
     correctOptionId: "d",
     explanation:

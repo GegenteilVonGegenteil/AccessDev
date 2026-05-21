@@ -269,7 +269,7 @@ function contrastRatio(fgRGB, bgRGB){
       <button type="button" class="clickable">Natural Tab Order</button>
       <button id="target" type="button" tabindex="-1" class="clickable">Negative tabindex</button>
     
-      <div class="clickable" role="button" onclick="alert('div clicked')">Div Button</div>
+      <div class="clickable" onclick="alert('div clicked')">Div Button</div>
 
       <button class="clickable" tabindex="2">Positive tabindex</button>
 
