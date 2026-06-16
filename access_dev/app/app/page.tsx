@@ -5,40 +5,43 @@ import { VStack, HStack, Text, Box, ProgressRoot, ProgressTrack, ProgressRange} 
 import { course } from "@/consts/course";
 import CourseCard from "@/components/ui/CourseCard";
 import { getCourseProgress, getChallengesProgress, getQuizzesProgress } from "@/lib/progress";
-import { getChallengeBySlug } from "@/consts/challenges";
 
-function getStepTitle(step: (typeof course.steps)[number]): string {
-    return "name" in step ? step.name : step.title;
-}
-
-function getStepDescription(step: (typeof course.steps)[number]): string {
-    return "description" in step && "name" in step ? step.description : step.subtitle;
-}
-
+// dashboard showing all steps, including which ones are completed and which one is to be done next, as well as performance metrics
 export default function Home() {
+    // the entire course with all steps
     const coursePlan = course;
+    // how many steps are in the course
     const totalSteps = coursePlan.steps.length;
+    // how many steps have been completed so far
     const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+    // the progress/performance metrics of the user for the challenges
     const [challengesProgress, setChallengesProgress] = useState<any>(null);
+    // the progress/performance metrics of the user for the quizzes
     const [quizzesProgress, setQuizzesProgress] = useState<any>(null);
+    // whether the component has been mounted (to avoid hydration issues)
     const [isMounted, setIsMounted] = useState(false);
+    // all completed steps
     const completedSet = useMemo(() => new Set(completedStepIds), [completedStepIds]);
+    // how many steps have been completed so far
     const completedCount = completedStepIds.length;
+    // the percentage of steps completed so far
     const progressPercentage = totalSteps > 0 ? (completedCount / totalSteps) * 100 : 0;
 
+    // once the component is mounted, 
     useEffect(() => {
         setIsMounted(true);
 
         const stored = getCourseProgress();
         setCompletedStepIds(stored.completedStepIds);
 
-        const cp = getChallengesProgress();
-        setChallengesProgress(cp.completed);
+        const challengeProgress = getChallengesProgress();
+        setChallengesProgress(challengeProgress.completed);
 
-        const qp = getQuizzesProgress();
-        setQuizzesProgress(qp.completed);
+        const quizzesProgress = getQuizzesProgress();
+        setQuizzesProgress(quizzesProgress.completed);
     }, []);
 
+    // if the component is not mounted yet, show a loading state
     if (!isMounted) {
         return (
             <div className="flex min-h-[50vh] items-center justify-center">
@@ -49,8 +52,7 @@ export default function Home() {
         );
     }
 
-    // actions navigate to the step; completion is recorded when the user actually finishes the step
-
+    // the content of the page
     return (
         <>
             <div className="flex flex-1 flex-col items-end justify-center">
@@ -71,14 +73,17 @@ export default function Home() {
                 <Text as="h1" fontSize="3xl" fontWeight="bold" mb={8} w="3/4"> Course Plan </Text>
                 <div className="flex gap-6 flex-col items-center justify-center w-3/4">
                     {coursePlan.steps.map((step, index) => {
+                        {/* relevant step data */}
                         const stepIdStr = String(step.id);
                         const isCompleted = completedSet.has(stepIdStr);
                         const previousStepId = index > 0 ? String(coursePlan.steps[index - 1].id) : null;
                         const isLocked = previousStepId ? !completedSet.has(previousStepId) : false;
                         const stepLink = step.link?.[0] ?? "#";
 
+                        {/* meta for the steps, given to the  */}
                         let meta: string | undefined;
 
+                        {/* for quizes, display how many questions were answered correctly */}
                         if ("type" in step && step.type === "quiz") {
                             const q = quizzesProgress?.[step.id];
                             if (q) {
@@ -88,15 +93,14 @@ export default function Home() {
                                 meta = `${correct}/${total} (${pct}%)`;
                             }
                         } else {
-                            if (step.link && step.link[0]?.includes("/app/challenges/")) {
-                                const match = step.link[0].match(/\/app\/challenges\/([^/]+)/);
-                                const slug = match ? match[1] : null;
-
+                            {/* for challenges, display how many issues were resolved */}
+                            if ("type" in step && step.type === "keyboard-navigation" || step.type === "screen-reader" || step.type === "contrast") {
+                                const slug = step.slug;
                                 if (slug) {
-                                    const c = challengesProgress?.[slug];
-                                    if (c) {
-                                        const resolved = Math.min(Number(c.resolvedCount) ?? 0, Number(c.totalCount) ?? 0);
-                                        const total = Number(c.totalCount) ?? 0;
+                                    const challengeProgress = challengesProgress?.[slug];
+                                    if (challengeProgress) {
+                                        const resolved = Math.min(Number(challengeProgress.resolvedCount) ?? 0, Number(challengeProgress.totalCount) ?? 0);
+                                        const total = Number(challengeProgress.totalCount) ?? 0;
                                         const pct = total > 0 ? Math.round((resolved / total) * 100) : 0;
                                         meta = `${resolved}/${total} (${pct}%)`;
                                     }
@@ -104,11 +108,12 @@ export default function Home() {
                             }
                         }
 
+                        {/* Course Card component rendering the steps information */}
                         return (
                             <CourseCard
                                 key={stepIdStr}
-                                title={getStepTitle(step)}
-                                description={getStepDescription(step)}
+                                title={step.title}
+                                description={step.subtitle}
                                 link={stepLink}
                                 isLocked={isLocked}
                                 isCompleted={isCompleted}

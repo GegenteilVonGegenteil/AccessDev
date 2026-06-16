@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import NextLink from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import { Box, Button, Link, Text } from "@chakra-ui/react";
 import { getChallengeBySlug } from "@/consts/challenges";
 import { course } from "@/consts/course";
@@ -12,20 +12,21 @@ import {
     type ChallengeCompletion,
 } from "@/lib/progress";
 
-function normalizeLink(link?: string): string | null {
-    if (!link) {
-        return null;
-    }
-
-    return link.startsWith("/") ? link : `/${link}`;
-}
-
+// page shown after a challenge was completed, giving an overview of success and additional resources
 export default function ChallengeSuccessPage() {
+
+    //get the challenge slug from the url
     const params = useParams<{ slug: string }>();
     const slug = typeof params?.slug === "string" ? params.slug : "";
     const challenge = useMemo(() => getChallengeBySlug(slug), [slug]);
     const [completion, setCompletion] = useState<ChallengeCompletion | null>(null);
 
+    // return a 404 page if the challenge is not found
+     if (!challenge) {
+        return notFound();
+    }
+
+    // get the completion data for the challenge to be displayed
     useEffect(() => {
         if (!slug) {
             return;
@@ -35,61 +36,54 @@ export default function ChallengeSuccessPage() {
         setCompletion(progress.completed[slug] ?? null);
     }, [slug]);
 
+    // set the current step as completed when the page is loaded
     useEffect(() => {
         if (!challenge) {
             return;
         }
 
+        // get the current step based on the slug
         const currentPath = `/app/challenges/${challenge.slug}/preview`;
+        // find the step in the course that matches the current path
         const completedStep = course.steps.find((step) => step.link?.[0] === currentPath);
 
+        // if the step exists, mark it as completed
         if (completedStep) {
             markStepCompleted(String(completedStep.id));
         }
     }, [challenge]);
 
+    // get the next step (quiz) after for the continue button
     const nextStep = useMemo(() => {
         if (!challenge) {
             return null;
         }
 
+        // get the index of the current step in the course
         const currentPath = `/app/challenges/${challenge.slug}/preview`;
         const currentIndex = course.steps.findIndex((step) => step.link?.[0] === currentPath);
 
-        if (currentIndex < 0) {
-            return null;
-        }
-
+        // find the next step in the course based on index
         return course.steps.slice(currentIndex + 1).find((step) => Boolean(step.link?.[0])) ?? null;
     }, [challenge]);
 
-    if (!challenge) {
-        return (
-            <div className="flex flex-col items-center justify-center gap-6 py-12 h-full w-full">
-                <Text as="h1" fontSize="2xl" fontWeight="bold">
-                    Challenge not found
-                </Text>
-                <NextLink href="/app" passHref>
-                    <Button as="a" variant="solid" color="var(--color-background)" bg="var(--color-lavender-500)">
-                        Go Home
-                    </Button>
-                </NextLink>
-            </div>
-        );
-    }
-
+    // relevant data concerning the errors and hints in the challenge and the users performance
     const totalIssues = challenge.errors.length;
     const resolvedIssues = Math.min(completion?.resolvedCount ?? 0, totalIssues);
     const totalHints = challenge.hints.length;
     const hintsUsed = completion?.hintsUsed ?? 0;
-    const nextHref = normalizeLink(nextStep?.link?.[0]);
 
+    // link to the next step
+    const nextHref = nextStep?.link?.[0];
+
+    // the rendered completion page
     return (
         <div className="flex flex-col items-center justify-center gap-6 py-12 h-full w-full">
             <Text as="h1" fontSize="2xl" fontWeight="bold">
                 Challenge {challenge.id}: {challenge.title}
             </Text>
 
+            {/* conditional rendering dependent on the amount of errors fixed */}
             <Text fontSize="md" maxW="3xl" textAlign="center">
                 {resolvedIssues === totalIssues
                     ? "Great work! You fixed the accessibility issues and completed the challenge. Feel free to continue, redo this challenge or revisit the previous quiz to see how you fare!"

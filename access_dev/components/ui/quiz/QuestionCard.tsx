@@ -3,6 +3,7 @@
 import type { Question } from "@/consts/structures";
 import { Box, Button, RadioCard, Text } from "@chakra-ui/react";
 
+// properties relating to a single question and the ability to answer it
 type QuestionCardProps = {
     question: Question;
     selectedOptionId: string | null;
@@ -11,6 +12,7 @@ type QuestionCardProps = {
     isSubmitDisabled?: boolean;
 };
 
+// the component rendering the question and all associated answers
 export default function QuestionCard({
     question,
     selectedOptionId,
@@ -34,6 +36,7 @@ export default function QuestionCard({
                 {question.text}
             </Text>
             <Box w="full" maxW="200px" h="4px" bgGradient="to-r" gradientFrom="var(--color-violet-eggplant-900)" gradientTo="var(--color-mantis-400)" borderRadius="full" />
+            {/* Chakra Root object for radio cards, changes selected option on change */}
             <RadioCard.Root
                 w="full"
                 maxW="2xl"
@@ -43,8 +46,17 @@ export default function QuestionCard({
                         onSelectOption(details.value);
                     }
                 }}
+                onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") {
+                        const input = e.target as HTMLInputElement;
+                        if (input.type === "radio") {
+                            input.click();
+                        }
+                    }
+                }}
             >
                 <Box w="full" display="flex" flexDirection="column" gap={3}>
+                    {/* answer options as radio cards*/}
                     {question.options.map((option) => (
                         <RadioCard.Item
                             key={option.id}
@@ -57,6 +69,8 @@ export default function QuestionCard({
                             bgColor="var(--color-lavender-950)"
                             _hover={{ bgColor: "var(--color-lavender-900)" }}
                             _checked={{ borderColor: "var(--color-lavender-500)", bgColor: "var(--color-lavender-900)" }}
+                            _focusWithin={{ outline: "2px solid var(--color-lavender-500)", outlineOffset: "2px" }}
+
                         >
                             <RadioCard.ItemHiddenInput />
                             <RadioCard.ItemControl>
@@ -78,9 +92,9 @@ export default function QuestionCard({
                     onClick={onSubmit}
                     disabled={isSubmitDisabled}
                     variant="solid"
-                    color="var(--color-background)" 
-                    bg="var(--color-lavender-400)" 
-                    _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }} 
+                    color="var(--color-background)"
+                    bg="var(--color-lavender-400)"
+                    _hover={{ bg: "var(--color-lavender-500)", textDecor: "none" }}
                 >
                     Submit
                 </Button>

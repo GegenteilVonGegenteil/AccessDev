@@ -1,3 +1,5 @@
+// definitions of different structures used in the course
+
 export type Option = {
     id: string;
     text: string;
@@ -15,8 +17,8 @@ export type Question = {
 export type Quiz = {
     type: "quiz";
     id: string;
-    name: string;
-    description: string;
+    title: string;
+    subtitle: string;
     questions: Question[];
     link?: string[];
 };
@@ -29,7 +31,7 @@ export type Resource = {
 };
 
 export type Challenge = {
-    id: number | string;
+    id: string;
     slug: string;
     type: ChallengeType;
     title: string;
@@ -40,9 +42,8 @@ export type Challenge = {
     solutionCode: string;
     errors: string[];
     hints: string[];
-    validation?: string;
     resources: Resource[];
-    link?: string[];
+    link: string[];
 };
 
 export type CourseStep = Quiz | Challenge;

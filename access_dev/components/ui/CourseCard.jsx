@@ -3,7 +3,9 @@ import { Text, Box, Icon, Button } from "@chakra-ui/react";
 import { MdLockOutline, MdCheck, MdPlayArrow, MdArrowRightAlt } from "react-icons/md";
 import NextLink from "next/link";
 
+// component representing a single step in the course
 export default function CourseCard({ title, description, link, isLocked = false, isCompleted = false, onAction, meta }) {
+    // different conditionals depending on the state of the course step (completed, next step or locked)
     const ctaLabel = isLocked ? "Locked" : isCompleted ? "Redo" : "Start";
     const StatusIcon = isLocked ? MdLockOutline : isCompleted ? MdCheck : MdPlayArrow;
     const backgoundColor = isLocked ? "var(--color-background)" : isCompleted ? "var(--color-lavender-950)" : "var(--color-violet-eggplant-950)";
@@ -12,6 +14,7 @@ export default function CourseCard({ title, description, link, isLocked = false,
     const textColor = isLocked ? "var(--color-lavender-600)" : isCompleted ? "var(--color-text)" : "var(--color-text)";
     const descriptionColor = isLocked ? "var(--color-lavender-500)" : isCompleted ? "var(--color-lavender-300)" : "var(--color-violet-eggplant-300)";
 
+    // the rendered component using the conditionals above
     return (
         <Box display="flex" bg={backgoundColor} p={4} borderRadius="md" alignItems="center" gap={8} w="full">
                         <Box bgColor={iconBgColor} p={2} borderRadius="md" display="inline-flex" alignItems="center" gap={2} w="fit-content" h="fit-content">

@@ -5,28 +5,32 @@ import { Box, Button, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import AnswerOverview from "./AnswerOverview";
 
-export type QuizResult = {
+// data relating to a single question of a quiz and the associated answer given
+export type QuestionResult = {
     questionId: string;
     selectedOptionId: string | null;
     isCorrect: boolean;
 };
 
-type OverviewProps = {
+//data relating to the quiz overall
+type QuizProps = {
     quiz: Quiz;
-    results: QuizResult[];
+    results: QuestionResult[];
     score: number;
     continueHref?: string;
 };
 
-export default function Overview({ quiz, results, score, continueHref }: OverviewProps) {
+export default function Overview({ quiz, results, score, continueHref }: QuizProps) {
     return (
         <Box display="flex" flexDirection="column" gap={6} alignItems="center">
+            {/* overall score */}
             <Text as="h2" fontSize="2xl" fontWeight="semibold">
                 Your score: {score}/{quiz.questions.length}
             </Text>
 
             <Box w="1/2" maxW="200px" h="4px" bgGradient="to-r" gradientFrom="var(--color-violet-eggplant-900)" gradientTo="var(--color-mantis-400)" borderRadius="full" />
 
+            {/* indicidual answers */}
             <Box display="flex" flexDirection="column" gap={4} alignItems="center" w="full">
                 {quiz.questions.map((question, index) => {
                     const result = results[index];
@@ -43,6 +47,7 @@ export default function Overview({ quiz, results, score, continueHref }: Overvie
                 })}
             </Box>
 
+            {/* navigation options based on if this was the last quiz */}
             {continueHref ? (
                 <Box width="full" display="flex" justifyContent="end" gap={4}>
                     <NextLink href="/app" passHref>

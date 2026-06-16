@@ -4,6 +4,7 @@ import type { Question } from "@/consts/structures";
 import { Box, Tag, Text } from "@chakra-ui/react";
 import { MdCheck, MdClose } from "react-icons/md";
 
+// properites relating to a single question and the answer given
 type AnswerOverviewProps = {
     question: Question;
     questionNumber: number;
@@ -11,9 +12,12 @@ type AnswerOverviewProps = {
     isCorrect: boolean;
 };
 
+// component displaying the imediate feedback after a question
 export default function AnswerOverview({ question, questionNumber, selectedOptionId, isCorrect }: AnswerOverviewProps) {
+    // the option selected by the user
     const selectedOption = question.options.find((option) => option.id === selectedOptionId);
 
+    // text, color and icon depending on whether the answer was correct or not
     let responseCorrectText = isCorrect ? "Correct!" : "False";
     let responseColor = isCorrect ? "var(--color-mantis-400)" : "var(--color-violet-eggplant-400)";
     let responseIcon = isCorrect ? <MdCheck size={24} color="var(--color-background)" /> : <MdClose size={24} color="var(--color-background)" />;

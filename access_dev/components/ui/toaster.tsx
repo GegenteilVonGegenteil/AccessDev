@@ -14,6 +14,7 @@ export const toaster = createToaster({
   pauseOnPageIdle: true,
 })
 
+// generic Toaster by Chakra UI, not explicitily used in the app
 export const Toaster = () => {
   return (
     <Portal>

@@ -3,6 +3,7 @@
 import Footer from "@/components/ui/footer";
 import Header from "@/components/ui/header";
 
+// layout to add header and footer to all pages (besides landing)
 export default function Layout({
   children,
 }: Readonly<{

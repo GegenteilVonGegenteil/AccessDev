@@ -5,6 +5,7 @@ import { ClientOnly, IconButton, Skeleton, Span } from "@chakra-ui/react"
 import * as React from "react"
 import { LuMoon, LuSun } from "react-icons/lu"
 
+// this is a generic color mode provider by chackra, not used as there are no color modes in the application at the moment
 export interface ColorModeProviderProps {
   children: React.ReactNode
 }

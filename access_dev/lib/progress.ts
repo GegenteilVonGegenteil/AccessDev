@@ -1,34 +1,39 @@
-export const PROGRESS_STORAGE_KEY = "accessdev.course.progress.v1";
-export const CHALLENGES_STORAGE_KEY = "accessdev.challenges.completed.v1";
-export const QUIZZES_STORAGE_KEY = "accessdev.quizzes.completed.v1";
+// storage keys
+export const PROGRESS_STORAGE_KEY = "accessdev.course.progress";
+export const CHALLENGES_STORAGE_KEY = "accessdev.challenges.completed";
+export const QUIZZES_STORAGE_KEY = "accessdev.quizzes.completed";
 
+// array of the completed steps
 export type CourseProgress = {
   completedStepIds: string[];
 };
 
+// holds challenge completion related data
 export type ChallengeCompletion = {
   slug: string;
   resolvedCount: number;
   totalCount: number;
   hintsUsed: number;
-  completedAt: number;
 };
 
+// holds all completed challenges
 export type ChallengesProgress = {
   completed: Record<string, ChallengeCompletion>;
 };
 
+// holds quiz completion related data
 export type QuizCompletion = {
   slug: string;
   correctCount: number;
   totalCount: number;
-  completedAt: number;
 };
 
+// holds all completed quizzes
 export type QuizzesProgress = {
   completed: Record<string, QuizCompletion>;
 };
 
+// default values for progress
 const defaultProgress: CourseProgress = {
   completedStepIds: [],
 };
@@ -41,6 +46,7 @@ const defaultQuizzesProgress: QuizzesProgress = {
   completed: {},
 };
 
+// gets the users progress from local storage
 export function getCourseProgress(): CourseProgress {
   if (typeof window === "undefined") return defaultProgress;
 
@@ -48,17 +54,20 @@ export function getCourseProgress(): CourseProgress {
     const rawValue = window.localStorage.getItem(PROGRESS_STORAGE_KEY);
     if (!rawValue) return defaultProgress;
 
+    // parse stored values into CourseProgress
     const parsed = JSON.parse(rawValue) as Partial<CourseProgress>;
     if (!Array.isArray(parsed.completedStepIds)) return defaultProgress;
 
+  
     return {
-      completedStepIds: parsed.completedStepIds.filter((id): id is string => typeof id === "string"),
+      completedStepIds: parsed.completedStepIds
     };
   } catch {
     return defaultProgress;
   }
 }
 
+// get the challenges progress from local storage
 export function getChallengesProgress(): ChallengesProgress {
   if (typeof window === "undefined") return defaultChallengesProgress;
 
@@ -77,6 +86,7 @@ export function getChallengesProgress(): ChallengesProgress {
   }
 }
 
+// get the quizzes progress from local storage
 export function getQuizzesProgress(): QuizzesProgress {
   if (typeof window === "undefined") return defaultQuizzesProgress;
 
@@ -95,6 +105,7 @@ export function getQuizzesProgress(): QuizzesProgress {
   }
 }
 
+// saves the different progress objects to local storage
 export function saveCourseProgress(progress: CourseProgress): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress));
@@ -110,6 +121,7 @@ export function saveQuizzesProgress(progress: QuizzesProgress): void {
   window.localStorage.setItem(QUIZZES_STORAGE_KEY, JSON.stringify(progress));
 }
 
+// adds a challenge to the completed challenge list, inclduing how many erors were fixed and how many gints were used
 export function markChallengeCompleted(
   slug: string,
   resolvedCount: number,
@@ -125,7 +137,6 @@ export function markChallengeCompleted(
         resolvedCount,
         totalCount,
         hintsUsed,
-        completedAt: Date.now(),
       },
     },
   };
@@ -134,6 +145,7 @@ export function markChallengeCompleted(
   return next;
 }
 
+// adds a quiz to the completed quiz list, including how many questions were answered correctly
 export function markQuizCompleted(slug: string, correctCount: number, totalCount: number): QuizzesProgress {
   const current = getQuizzesProgress();
   const next: QuizzesProgress = {
@@ -142,8 +154,7 @@ export function markQuizCompleted(slug: string, correctCount: number, totalCount
       [slug]: {
         slug,
         correctCount,
-        totalCount,
-        completedAt: Date.now(),
+        totalCount
       },
     },
   };
@@ -152,8 +163,10 @@ export function markQuizCompleted(slug: string, correctCount: number, totalCount
   return next;
 }
 
+// adds a step to the completed step list
 export function markStepCompleted(stepId: string): CourseProgress {
   const current = getCourseProgress();
+  // don't add step if already completed
   if (current.completedStepIds.includes(stepId)) {
     return current;
   }
@@ -164,9 +177,4 @@ export function markStepCompleted(stepId: string): CourseProgress {
 
   saveCourseProgress(next);
   return next;
-}
-
-export function clearCourseProgress(): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(PROGRESS_STORAGE_KEY);
 }

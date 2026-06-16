@@ -1,5 +1,6 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
 
+// theme related stuff for chakra ui, namely colors
 const customConfig = defineConfig({
   theme: {
     tokens: {

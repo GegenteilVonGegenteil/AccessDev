@@ -1,5 +1,6 @@
 import type { Challenge, ChallengeType, Resource } from "./structures";
 
+// basic HTML boilerplate for the challenges
 const HTML_BOILERPLATE = (title: string, style: string, body: string) => `<!doctype html>
 <html lang="en">
   <head>
@@ -19,6 +20,7 @@ ${body}
   </body>
 </html>`;
 
+// helper funtion to create a challenge object
 const createChallenge = (
   id: string,
   slug: string,
@@ -45,11 +47,12 @@ const createChallenge = (
   starterCode: config.starterCode,
   errors: config.errors,
   hints: config.hints,
-  validation: config.validation,
   resources: config.resources,
   solutionCode: "",
+  link: [`/app/challenges/${slug}/preview`],
 });
 
+// an array of all the challenges in the course, each with its own starter code, errors and hints
 export const challenges: Challenge[] = [
   createChallenge(
     "1",
@@ -111,17 +114,6 @@ export const challenges: Challenge[] = [
         "The body text should be darker to meet the necessary ratio (4.5:1). Try using the color picker or adjust .sample-body",
         "The button text should have higher contrast against the background. Use the color picker to adjust either the background or text color. Alternatively, adjust .sample-button colors directly.",
       ],
-      validation: `function luminance(r,g,b){
-  const a=[r,g,b].map(v=>{
-    v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4);
-  });
-  return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
-}
-function contrastRatio(fgRGB, bgRGB){
-  const L1 = luminance(...fgRGB);
-  const L2 = luminance(...bgRGB);
-  return (Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05);
-}`,
       resources: [
         {
           label: "W3C WCAG 2.1 Contrast (Minimum) - Level AA",
@@ -193,15 +185,6 @@ function contrastRatio(fgRGB, bgRGB){
         "Use a specific button name instead of 'Click here' (e.g., 'Submit').",
         "Add aria-live to the status region or use role=\"status\"/\"alert\" for announcements.",
       ],
-      validation: `const inputs = document.querySelectorAll('input');
-  [...inputs].every(input => {
-    const hasLabel = Boolean(
-      input.getAttribute('aria-label') ||
-      input.getAttribute('aria-labelledby') ||
-      (input.id && document.querySelector('label[for="' + input.id + '"]'))
-    );
-    return hasLabel;
-  })`,
       resources: [
         {
           label: "W3C WAI Form Labeling Techniques",
@@ -266,17 +249,18 @@ function contrastRatio(fgRGB, bgRGB){
       <h2>Keyboard Navigation Examples</h2>
       <p>Click window and press Tab to see each buttons tab behavior.</p>
 
-      <button type="button" class="clickable">Natural Tab Order</button>
-      <button id="target" type="button" tabindex="-1" class="clickable">Negative tabindex</button>
+      <button type="button" class="clickable" onclick="alert('natural tab clicked')">Natural Tab Order</button>
+      <button type="button" tabindex="-1" class="clickable" onclick="alert('negative tabindex clicked')">Negative tabindex</button>
     
       <div class="clickable" onclick="alert('div clicked')">Div Button</div>
 
-      <button class="clickable" tabindex="2">Positive tabindex</button>
+      <button class="clickable" tabindex="2" onclick="alert('positive tabindex clicked')">Positive tabindex</button>
 
       <button
         id="trap"
         class="clickable"
         onkeydown="if (event.key === 'Tab') { event.preventDefault(); this.focus(); }"
+        onclick="alert('trap button clicked')"
       >
         Keyboard Trap Button
       </button>
@@ -313,6 +297,7 @@ function contrastRatio(fgRGB, bgRGB){
 
 ];
 
+// helper function to get a challenge by its slug
 export function getChallengeBySlug(slug: string) {
   return challenges.find((challenge) => challenge.slug === slug);
 }

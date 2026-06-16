@@ -1,16 +1,27 @@
+'use client';
+
+import { useParams } from "next/navigation";
 import { Box, Text, Link, Button } from "@chakra-ui/react";
 import { notFound } from "next/navigation";
 import { getChallengeBySlug } from "@/consts/challenges";
 import NextLink from "next/link";
+import { useMemo } from "react";
 
-export default async function ChallengePreviewPage({ params }: { params: { slug: string } | Promise<{ slug: string }> }) {
-    const { slug } = await params;
-    const challenge = getChallengeBySlug(slug);
 
+// page shown before a challenge, giving a brief description, goals and additional resources
+export default function ChallengePreviewPage() {
+    
+    //get the challenge slug from the url
+    const params = useParams<{ slug: string }>();
+    const slug = typeof params?.slug === "string" ? params.slug : "";
+    const challenge = useMemo(() => getChallengeBySlug(slug), [slug]);
+
+    // return a 404 page if the challenge is not found
     if (!challenge) {
         notFound();
     }
 
+    // the rendered page
     return (
         <div className="flex flex-col items-center justify-center gap-6 py-12 h-full w-full">
             <Box borderWidth="1px" borderRadius="sm" borderColor="var(--color-lavender-500)" padding={6} width="3xl" display="flex" flexDirection="column" alignItems="center" gap={8}  >

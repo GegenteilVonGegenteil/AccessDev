@@ -5,9 +5,11 @@ import { majorMonoDisplay } from "./fonts";
 import { LuChevronRight } from "react-icons/lu";
 import NextLink from "next/link";
 
+// landing page, little intro and start button
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center">
+      {/* the mesh gradient background */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none opacity-35"
         preserveAspectRatio="xMidYMid slice"

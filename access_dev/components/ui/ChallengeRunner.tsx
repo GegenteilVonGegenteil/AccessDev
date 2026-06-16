@@ -29,15 +29,18 @@ import {
 } from "@/lib/challenge-utils";
 import { markChallengeCompleted } from "@/lib/progress";
 
+// props for the challenge runner, needs to be done because otherwise there is a type error
 type ChallengeRunnerProps = {
     challenge: Challenge;
 };
 
+// for the contrast challenge, allows the user to select the object to edit with the color picker
 type ContrastTargetOption = {
     key: ContrastColorTargetKey;
     label: string;
 };
 
+// for the contrast challenge, these are the options of targets to be edited with the color picker
 const contrastTargetOptions: ContrastTargetOption[] = [
     { key: "title", label: "Title text" },
     { key: "body", label: "Body text" },
@@ -45,6 +48,7 @@ const contrastTargetOptions: ContrastTargetOption[] = [
     { key: "buttonBackground", label: "Button fill" },
 ];
 
+// styling for the code editor, matching the overall design of the app
 const editorTheme = EditorView.theme({
     "&": {
         height: "100%",
@@ -80,29 +84,48 @@ const editorTheme = EditorView.theme({
     },
 });
 
+// the actual challenge runner component rendering the editor, preview, error and hint sections
 export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
+
+    // router for navigation to the success page after completing the challenge
     const router = useRouter();
+    // references to the editor host and view, needed for CodeMirror
     const editorHostRef = useRef<HTMLDivElement | null>(null);
     const editorViewRef = useRef<EditorView | null>(null);
+
+    // state holding the code in the editor, initialized with the given code of a challenge
     const [code, setCode] = useState(challenge.starterCode);
+
+    // tracker for the revealed hints
     const [revealedHints, setRevealedHints] = useState<Set<number>>(new Set());
+
+    // state for whether the challenge info modal is open
     const [isInfoOpen, setIsInfoOpen] = useState(false);
+    
+    // checking if the component is mounted (done due to hydration issues)
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => setIsMounted(true), []);
+
+    // for the contrast challenge, hold the current target for the color picker, default is the title element
     const [selectedContrastTarget, setSelectedContrastTarget] = useState<ContrastColorTargetKey>("title");
 
+    // initialization of the CodeMirror editor, done once the component is mounted
     useEffect(() => {
+        // get the host element for the editor
         const host = editorHostRef.current;
 
+        // if the host is not available or the editor view is already initialized, do nothing
         if (!host || editorViewRef.current) {
             return undefined;
         }
 
+        // create the editor state using the starter code of the challenge and the predefined theme and setup
         const state = EditorState.create({
             doc: challenge.starterCode,
             extensions: [
                 basicSetup,
                 editorTheme,
+                // update the code state on changes, this allows for the preview to update and the errors to be evaluated
                 EditorView.updateListener.of((update) => {
                     if (update.docChanged) {
                         setCode(update.state.doc.toString());
@@ -111,30 +134,37 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
             ],
         });
 
+        // create the editor view and attach it to the host element
         editorViewRef.current = new EditorView({
             state,
             parent: host,
         });
 
+        // cleanup function to destroy the editor view when the component is unmounted
         return () => {
             editorViewRef.current?.destroy();
             editorViewRef.current = null;
         };
     }, [challenge.starterCode]);
 
+    // update the editor view when the code state changes, used for the reset and the color picker in the contrast challenge
     useEffect(() => {
+        // get the current editor view
         const view = editorViewRef.current;
 
         if (!view) {
             return;
         }
 
+        // get the current code in the editor
         const currentCode = view.state.doc.toString();
 
+        // if the current code is the same as the new code, do nothing
         if (currentCode === code) {
             return;
         }
 
+        // update the editor view with the new code
         view.dispatch({
             changes: {
                 from: 0,
@@ -144,12 +174,19 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
         });
     }, [code]);
 
+    // get the preview document for the iframe
     const previewDoc = useMemo(() => getPreviewDoc(challenge, code), [challenge, code]);
+
+    // get the resolved issues
     const resolvedIssues = useMemo(() => evaluateChallengeIssues(challenge, code), [challenge, code]);
+
+    // filter all challenge errors to only show the unresolved ones, used to only render relevant errors
     const activeErrors = useMemo(
         () => challenge.errors.filter((_, index) => !resolvedIssues[index]),
         [challenge.errors, resolvedIssues]
     );
+
+    // for the contrast chalenge, get the contrast ratios of the currently applied colors
     const contrastMetrics = useMemo(() => {
         if (challenge.type !== "contrast" || !isMounted) {
             return null;
@@ -157,6 +194,8 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
 
         return getContrastMetrics(code);
     }, [challenge.type, code, isMounted]);
+
+    // for the contrast challenge, get the current color values of the targets to be edited with the color picker
     const contrastColorTargets = useMemo(() => {
         if (challenge.type !== "contrast" || !isMounted) {
             return null;
@@ -164,6 +203,8 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
 
         return getContrastColorTargets(code);
     }, [challenge.type, code, isMounted]);
+
+    // for the screen reader challenge, get the simulated screen reader output for the current code
     const screenReaderSimulation = useMemo(() => {
         if (challenge.type !== "screen-reader" || !isMounted) {
             return null;
@@ -172,6 +213,41 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
         return extractScreenReaderSimulation(code, challenge);
     }, [challenge, code, isMounted]);
 
+    // handles the completion of the challenge, which is called when teh user clicks the associated button
+    const handleContinueToSuccess = () => {
+        // count how many issues were resolved
+        const resolved = resolvedIssues.filter(Boolean).length;
+        // count how many hints were revealed
+        const hintsUsed = revealedHints.size;
+        // save progress in local storage
+        markChallengeCompleted(challenge.slug, resolved, challenge.errors.length, hintsUsed);
+        // navigate to the success page of the challenge
+        router.push(`/app/challenges/${challenge.slug}/success`);
+    };
+
+    // reset of code 
+    const handleReset = () => {
+        // set the code state to the starter code
+        setCode(challenge.starterCode);
+
+        // get the current view
+        const view = editorViewRef.current;
+
+        if (!view) {
+            return;
+        }
+
+        // update the editor view with the starter code
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: view.state.doc.length,
+                insert: challenge.starterCode,
+            },
+        });
+    };
+
+    // close the challenge info modal when the escape key is pressed
     useEffect(() => {
         if (!isInfoOpen) {
             return undefined;
@@ -183,49 +259,28 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
             }
         };
 
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        // add the event listener for keydown events
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
     }, [isInfoOpen]);
 
-    const handleContinueToSuccess = () => {
-        const resolved = resolvedIssues.filter(Boolean).length;
-        const hintsUsed = revealedHints.size;
-        markChallengeCompleted(challenge.slug, resolved, challenge.errors.length, hintsUsed);
-        router.push(`/app/challenges/${challenge.slug}/success`);
+    // for the contrast challenge, handle the color change of the selected target using the color picker, updates the code state with the new color value
+    const handleContrastColorChange = (nextColor: string) => {
+        setCode((currentCode) => setContrastColorTargetValue(currentCode, selectedContrastTarget, nextColor));
     };
 
-    const handleReset = () => {
-        setCode(challenge.starterCode);
-        setRevealedHints(new Set());
-
-        const view = editorViewRef.current;
-
-        if (!view) {
-            return;
-        }
-
-        view.dispatch({
-            changes: {
-                from: 0,
-                to: view.state.doc.length,
-                insert: challenge.starterCode,
-            },
-        });
-    };
-
+    // reveal a hint, adds the index of the hint to the set of revealed hints
     const revealHint = (index: number) => {
         const newRevealed = new Set(revealedHints);
         newRevealed.add(index);
         setRevealedHints(newRevealed);
     };
 
-    const handleContrastColorChange = (nextColor: string) => {
-        setCode((currentCode) => setContrastColorTargetValue(currentCode, selectedContrastTarget, nextColor));
-    };
-
+    // get the currently selected color value for the contrast challenge, used to set the value of the color picker
     const selectedContrastColor =
         contrastColorTargets?.[selectedContrastTarget] ?? "#000000";
 
+    // render the challenge runner component
     return (
         <Box maxW="7xl" mx="auto" w="full" px={{ base: 4, lg: 0 }} py={{ base: 8, lg: 10 }} color="var(--color-text)">
             <VStack align="stretch" gap={8}>
@@ -240,6 +295,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                     </VStack>
 
                     <HStack gap={2} flexShrink={0}>
+                        {/* button to end the challenge */}
                         <Button
                             onClick={handleContinueToSuccess}
                             variant="solid"
@@ -249,6 +305,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                         >
                             End Challenge
                         </Button>
+                        {/* button to open the information modal */}
                         <IconButton
                             aria-label="Challenge information"
                             rounded="full"
@@ -260,6 +317,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                     </HStack>
                 </HStack>
 
+                {/* the editor and preview */}
                 <SimpleGrid columns={{ base: 1, lg: 2 }} gap={5} alignItems="stretch">
                     <Box borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="2xl" overflow="hidden" bg="var(--color-background)" display="flex" flexDirection="column" minH={{ base: "14rem", lg: "18rem" }} maxH={{ base: "26rem", lg: "32rem" }}>
                         <HStack justify="space-between" borderBottomWidth="1px" borderColor="var(--color-lavender-500)" px={5} py={4}>
@@ -267,12 +325,14 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                                 <LuCodeXml />
                                 <Text fontFamily="var(--font-mono)" fontSize="sm">index.html</Text>
                             </HStack>
+                            {/* Reset Button */}
                             <Button type="button" onClick={handleReset} variant="outline" color="var(--color-lavender-500)" borderColor="var(--color-lavender-500)" _hover={{ borderColor: "var(--color-lavender-400)", color: "var(--color-lavender-400)", bg: "transparent" }}>
                                 Reset
                             </Button>
                         </HStack>
 
                         <Box p={3} flex="1" minH={0} display="flex" flexDirection="column" gap={3}>
+                            {/* the editor */}
                             <Box
                                 ref={editorHostRef}
                                 flex="1"
@@ -284,6 +344,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                                 borderColor="whiteAlpha.100"
                             />
 
+                            {/* colour picker section for the contrast challenge */}
                             {challenge.type === "contrast" ? (
                                 <VStack align="stretch" gap={3} p={3} borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="xl">
                                     <VStack align="start" gap={1}>
@@ -291,10 +352,11 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                                             Color wheel
                                         </Text>
                                         <Text fontSize="sm" color="var(--color-lavender-200)">
-                                            Pick a target, then adjust the hex value live in the editor.
+                                            Pick a target, then adjust the color in the editor.
                                         </Text>
                                     </VStack>
 
+                                    {/* the target options for the color picker */}
                                     <SimpleGrid columns={{ base: 2, md: 4 }} gap={2}>
                                         {contrastTargetOptions.map((target) => (
                                             <Button
@@ -312,6 +374,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                                         ))}
                                     </SimpleGrid>
 
+                                    {/* the colour picker */}
                                     <Box>
                                         <Text fontSize="sm" color="var(--color-lavender-200)" mb={2}>
                                             Hex color picker
@@ -328,12 +391,14 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                         </Box>
                     </Box>
 
+                    {/* the preview */}
                     <Box borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="2xl" overflow="hidden" bg="var(--color-background)" display="flex" flexDirection="column" minH={{ base: "14rem", lg: "18rem" }} maxH={{ base: "26rem", lg: "32rem" }}>
                         <HStack gap={3} borderBottomWidth="1px" borderColor="var(--color-lavender-500)" px={5} py={4} color="var(--color-lavender-100)">
                             <FiEye />
                             <Text fontFamily="var(--font-mono)" fontSize="sm">Preview</Text>
                         </HStack>
 
+                        {/* screen reader simulation */}
                         {screenReaderSimulation ? (
                             <VStack align="stretch" gap={3} p={3} flex="1" minH={0} bg="var(--color-lavender-50)" height="100%">
                                 <Box flex="1" minH={0} overflow="auto" borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="xl" p={4} bg="var(--color-background)">
@@ -341,34 +406,35 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                                         Screen Reader Output
                                     </Text>
                                     <VStack align="stretch" gap={2}>
-                                        {screenReaderSimulation.headingLines.map((line) => (
+                                        {/* all heading lines */}
+                                        {screenReaderSimulation.headingLines.map((line: string) => (
                                             <Box key={line} borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
                                                 {line}
                                             </Box>
                                         ))}
-                                        {screenReaderSimulation.inputLines.map((line) => (
+                                        {/* all input lines */}
+                                        {screenReaderSimulation.inputLines.map((line: string) => (
                                             <Box key={line} borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
                                                 {line}
                                             </Box>
                                         ))}
-                                        {screenReaderSimulation.buttonLines.map((line) => (
+                                        {/* all button lines */}
+                                        {screenReaderSimulation.buttonLines.map((line: string) => (
                                             <Box key={line} borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
                                                 {line}
                                             </Box>
                                         ))}
+                                        {/* status region */}
                                         <Box borderRadius="xl" borderWidth="1px" borderColor="var(--color-lavender-500)" bg="var(--color-lavender-950)" px={4} py={3} fontSize="sm">
                                             <strong>Status region:</strong> {screenReaderSimulation.liveText}
                                         </Box>
-                                        {screenReaderSimulation.warnings.map((warning) => (
-                                            <Box key={warning} borderRadius="xl" borderWidth="1px" borderColor="var(--color-violet-eggplant-400)" bg="var(--color-violet-eggplant-950)" px={4} py={3} fontSize="sm">
-                                                {warning}
-                                            </Box>
-                                        ))}
                                     </VStack>
                                 </Box>
                             </VStack>
                         ) : (
                             <VStack align="stretch" gap={3} p={3} flex="1" minH={0} bg="var(--color-lavender-50)" height="100%">
+                                {/* other challenges use iframe for simulation */}
+                                {/* indicators for current contrast ratios */}
                                 {contrastMetrics ? (
                                     <HStack gap={2} flexWrap="wrap" borderBottomWidth="1px" borderColor="rgba(255,255,255,0.08)" bg="rgba(255,255,255,0.04)" px={3} py={2} borderRadius="xl">
                                         <Box px={3} py={2} borderRadius="lg" bg="var(--color-background)" borderWidth="1px" borderColor="var(--color-lavender-500)" fontSize="sm">
@@ -382,7 +448,7 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                                         </Box>
                                     </HStack>
                                 ) : null}
-
+                                {/* iframe for the preview */}
                                 <Box flex="1" minH={0} borderRadius="xl" overflow="hidden" borderWidth="1px" borderColor="var(--color-lavender-500)" height="100%">
                                     <iframe title={`${challenge.title} preview`} sandbox="allow-scripts allow-modals" style={{ width: "100%", height: "100%", border: 0, background: "white", display: "block" }} srcDoc={previewDoc} />
                                 </Box>
@@ -390,7 +456,8 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                         )}
                     </Box>
                 </SimpleGrid>
-
+                
+                {/* hints and errors */}
                 <SimpleGrid columns={{ base: 1, lg: 2 }} gap={5}>
                     <Box borderWidth="1px" borderColor="var(--color-lavender-500)" borderRadius="2xl" overflow="hidden" bg="var(--color-background)">
                         <HStack gap={3} borderBottomWidth="1px" borderColor="var(--color-lavender-500)" px={5} py={4} color="var(--color-lavender-100)">
@@ -440,7 +507,8 @@ export default function ChallengeRunner({ challenge }: ChallengeRunnerProps) {
                     </Box>
                 </SimpleGrid>
             </VStack>
-
+            
+            {/* modal info dialogue */}
             {isInfoOpen ? (
                 <Box
                     position="fixed"

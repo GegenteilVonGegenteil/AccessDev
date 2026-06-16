@@ -11,6 +11,7 @@ import {
   type ColorModeProviderProps,
 } from "./color-mode"
 
+// generic provider for chakra UI, sets the basic fonts
 const system = createSystem(
   defaultConfig,
   defineConfig({

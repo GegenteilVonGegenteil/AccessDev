@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   description: "An educational tool using the power of simulation to teach developers the basics of web accessibility.",
 };
 
+{/* rootlayout, only really used for the fonts */}
 export default function RootLayout({
   children,
 }: Readonly<{

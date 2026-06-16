@@ -1,14 +1,16 @@
 import type { Question, Quiz } from "./structures";
 
-const createQuiz = (id: string, name: string, description: string, questions: Question[]): Quiz => ({
+// helper function to create quiz objects
+const createQuiz = (id: string, title: string, subtitle: string, questions: Question[]): Quiz => ({
   type: "quiz",
   id,
-  name,
-  description,
+  title,
+  subtitle,
   questions,
   link: [`/app/quiz/${id}`],
 });
 
+//#region Quiz Questions
 const QUIZ_1_QUESTIONS: Question[] = [
   {
     id: "quiz-1-q1",
@@ -301,7 +303,9 @@ const QUIZ_4_QUESTIONS: Question[] = [
     link: ["https://webaim.org/projects/million/"],
   },
 ];
+//#endregion
 
+// all the quizzes in the course
 export const quizzes = [
   createQuiz(
     "quiz-1",
@@ -330,11 +334,7 @@ export const quizzes = [
 
 ];
 
-export const quizzesBySlug = quizzes.reduce<Record<string, Quiz>>((accumulator, quiz) => {
-  accumulator[quiz.id] = quiz;
-  return accumulator;
-}, {});
-
+// helper function to get a quiz by its slug
 export function getQuizBySlug(slug: string) {
-  return quizzesBySlug[slug];
+  return quizzes.find((quiz) => quiz.id === slug);
 }

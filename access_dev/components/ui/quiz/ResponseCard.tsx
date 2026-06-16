@@ -4,6 +4,7 @@ import type { Question } from "@/consts/structures";
 import { Box, Text, Button, Link } from "@chakra-ui/react";
 import { MdCheck, MdClose } from "react-icons/md";
 
+// necessary data for the response after a question
 type ResponseCardProps = {
     question: Question;
     selectedOptionId: string | null;
@@ -12,6 +13,7 @@ type ResponseCardProps = {
     onNext: () => void;
 };
 
+// component displaying the response to a question
 export default function ResponseCard({
     question,
     selectedOptionId,
@@ -19,6 +21,7 @@ export default function ResponseCard({
     isLastQuestion,
     onNext,
 }: ResponseCardProps) {
+    // conditional rendering depending on whether the answer was correct or not
     const responseCorrectText = isCorrect ? "Correct!" : "Incorrect";
     const responseColor = isCorrect ? "var(--color-mantis-400)" : "var(--color-violet-eggplant-400)";
     const responseIcon = isCorrect ? (
@@ -27,6 +30,7 @@ export default function ResponseCard({
         <MdClose size={24} color="var(--color-background)" />
     );
 
+    // the selected option and the correct option
     const selectedOption = question.options.find((option) => option.id === selectedOptionId);
     const correctOption = question.options.find((option) => option.id === question.correctOptionId);
 
@@ -65,6 +69,7 @@ export default function ResponseCard({
                 <Text fontSize="md">{selectedOption?.text}</Text>
             </Box>
 
+            {/* if the user answered incorrectly, the correct answer is displayed */}
             {!isCorrect && (
                 <Box w="full" display="flex" gap={2} flexDirection="column">
                     <Text fontWeight="semibold" fontSize="md" color="var(--color-mantis-400)">
